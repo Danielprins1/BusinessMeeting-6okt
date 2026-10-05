@@ -167,7 +167,17 @@ nepantwoord/
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY`  | browser        | nee (kan niets lezen door RLS) |
 | `SUPABASE_SERVICE_ROLE_KEY`      | alleen server  | **ja**  |
 
-### Hosting (bijv. Vercel)
+### Hosting op Render (aanbevolen: één klik)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Danielprins1/BusinessMeeting-6okt)
+
+Klik op de knop (of kies in Render **New → Blueprint** en selecteer deze repository). Render leest
+`render.yaml` en vraagt om de drie Supabase-waarden hierboven. Daarna krijg je een adres als
+`https://nepantwoord.onrender.com`.
+Let op: op het gratis abonnement valt de site na 15 minuten zonder bezoek in slaap; het eerste bezoek duurt
+dan ongeveer een minuut. Spellen gaan daarbij niet verloren (die staan in Supabase).
+
+### Hosting op Vercel (alternatief)
 1. Importeer de repository (de app staat in de root).
 2. Vul de drie omgevingsvariabelen in en deploy.
 Omdat alle status in Supabase staat, werkt dit ook serverless en met meerdere instanties.
