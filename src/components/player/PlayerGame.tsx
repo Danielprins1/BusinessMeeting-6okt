@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
-import { Alert, Button, Card, Eyebrow, PlayerList, Stack, Standings, TextField, Waiting, points } from '@/components/ui';
-import { FinalStandings, QuestionHeader, RevealView } from '@/components/game/shared';
+import { useId, useState, type FormEvent } from 'react';
+import { Alert, Avatar, Button, Card, Eyebrow, PlayerList, Stack, Standings, Waiting, points } from '@/components/ui';
+import { FinalStandings, QuestionHeader, RevealView, RoundPoints, leaderTitle, quoted } from '@/components/game/shared';
 import { GameFrame } from '@/components/game/Frame';
 import { api, ClientError } from '@/lib/client/api';
 import { clearSession, type StoredSession } from '@/lib/client/session';
@@ -44,13 +44,12 @@ function PlayerPhase({ view, session, refresh }: { view: GameView; session: Stor
     case 'LOBBY':
       return (
         <Stack gap="lg">
-          <Card>
-            <Stack gap="sm">
-              <p className="ui-subtitle ui-center">Je doet mee!</p>
-              <p className="ui-title ui-center">{view.me?.name}</p>
-              <p className="ui-muted ui-center">Wachten tot de host het spel start...</p>
-            </Stack>
-          </Card>
+          <h1 className="ui-bar">Je doet mee!</h1>
+          <div className="ui-winner">
+            {view.me && <Avatar name={view.me.name} size="lg" />}
+            <p className="ui-winner__name">{view.me?.name}</p>
+            <p className="ui-muted">Wachten tot de host het spel start...</p>
+          </div>
           <Stack gap="sm">
             <Eyebrow>
               {view.players.length} / {view.maxPlayers} spelers · room {view.roomCode}
@@ -67,12 +66,10 @@ function PlayerPhase({ view, session, refresh }: { view: GameView; session: Stor
           {view.myAnswer ? (
             <Stack>
               <Alert kind="success">Antwoord opgeslagen!</Alert>
-              <Card muted>
-                <Stack gap="sm">
-                  <Eyebrow>Jouw antwoord</Eyebrow>
-                  <p className="ui-subtitle">{view.myAnswer}</p>
-                </Stack>
-              </Card>
+              <Stack gap="sm">
+                <p className="ui-pick-label">Jouw antwoord</p>
+                <div className="ui-option ui-option--static ui-option--selected">{quoted(view.myAnswer)}</div>
+              </Stack>
               <Waiting
                 title="Wachten op de andere spelers..."
                 text={progressText(view.answerProgress, 'antwoorden binnen')}
@@ -103,6 +100,7 @@ function PlayerPhase({ view, session, refresh }: { view: GameView; session: Stor
             </Card>
           )}
           {view.reveal && <RevealView reveal={view.reveal} meId={meId} />}
+          {view.reveal && <RoundPoints reveal={view.reveal} standings={view.standings ?? []} meId={meId} />}
         </Stack>
       );
     }
@@ -110,8 +108,9 @@ function PlayerPhase({ view, session, refresh }: { view: GameView; session: Stor
     case 'SCOREBOARD':
       return (
         <Stack gap="lg">
-          <h1 className="ui-title">Tussenstand</h1>
-          <Standings standings={view.standings ?? []} meId={meId} />
+          <h1 className="ui-bar">Tussenstand</h1>
+          <p className="ui-score-title">{leaderTitle(view.standings ?? [])}</p>
+          <Standings standings={view.standings ?? []} meId={meId} deltas={view.lastRound} />
           <p className="ui-muted ui-center">Wachten op de host...</p>
         </Stack>
       );
@@ -169,6 +168,7 @@ function progressText(entries: GameView['answerProgress'], label: string) {
 }
 
 function AnswerForm({ session, refresh }: { session: StoredSession; refresh: () => Promise<void> }) {
+  const inputId = useId();
   const [answer, setAnswer] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -195,23 +195,44 @@ function AnswerForm({ session, refresh }: { session: StoredSession; refresh: () 
   return (
     <form onSubmit={onSubmit} noValidate>
       <Stack>
-        <p>Verzin een geloofwaardig antwoord waarvan je denkt dat andere spelers erin zullen trappen.</p>
-        <TextField
-          label="Jouw antwoord"
-          value={answer}
-          onChange={(e) => {
-            setAnswer(e.target.value);
-            if (error) setError(null);
-          }}
-          maxLength={MAX_ANSWER_LENGTH}
-          autoComplete="off"
-          autoCorrect="off"
-          enterKeyHint="send"
-          error={error}
-        />
-        <Button type="submit" block loading={busy}>
-          Antwoord insturen
-        </Button>
+        <p className="ui-pick-label">Verzin een geloofwaardig antwoord</p>
+        <p className="ui-muted ui-small ui-center">Laat de anderen erin trappen!</p>
+        <div className="ui-frame">
+          <label htmlFor={inputId} className="sr-only">
+            Jouw antwoord
+          </label>
+          <textarea
+            id={inputId}
+            className="ui-answer-input"
+            value={answer}
+            rows={2}
+            placeholder="Typ je antwoord…"
+            onChange={(e) => {
+              setAnswer(e.target.value.replace(/\n/g, ' '));
+              if (error) setError(null);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                e.currentTarget.form?.requestSubmit();
+              }
+            }}
+            maxLength={MAX_ANSWER_LENGTH}
+            autoComplete="off"
+            autoCorrect="off"
+            enterKeyHint="send"
+            aria-invalid={!!error || undefined}
+          />
+          <span className="ui-frame__count" aria-hidden="true">
+            {MAX_ANSWER_LENGTH - answer.length}
+          </span>
+          <div className="ui-frame__submit">
+            <Button type="submit" block loading={busy}>
+              Antwoord insturen
+            </Button>
+          </div>
+        </div>
+        {error && <Alert kind="error">{error}</Alert>}
       </Stack>
     </form>
   );
@@ -239,7 +260,7 @@ function VoteForm({ view, session, refresh }: { view: GameView; session: StoredS
 
   return (
     <Stack>
-      <h2 className="ui-subtitle">Welk antwoord is echt?</h2>
+      <h2 className="ui-pick-label">Welk antwoord is echt?</h2>
       {voted && <Alert kind="success">Stem opgeslagen! Wachten op de rest...</Alert>}
       <div className="ui-stack ui-stack--sm" role="radiogroup" aria-label="Antwoorden">
         {view.options?.map((o) => {
@@ -257,7 +278,7 @@ function VoteForm({ view, session, refresh }: { view: GameView; session: StoredS
               }}
               className={`ui-option${o.isOwn ? ' ui-option--own' : ''}${isSelected ? ' ui-option--selected' : ''}`}
             >
-              <span>{o.text}</span>
+              <span>{quoted(o.text)}</span>
               {o.isOwn && <span className="ui-option__note">Jouw antwoord</span>}
               {voted === o.id && <span className="ui-option__note">Jouw stem</span>}
             </button>

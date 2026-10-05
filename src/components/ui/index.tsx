@@ -121,6 +121,17 @@ export function Counter({ label, value, total }: { label: string; value: number;
   );
 }
 
+/** Rondje met de eerste letter van de naam; de kleur hangt vast aan de naam. */
+export function Avatar({ name, size }: { name: string; size?: 'sm' | 'lg' }) {
+  let hash = 0;
+  for (const ch of name) hash = (hash * 31 + ch.codePointAt(0)!) >>> 0;
+  return (
+    <span className={cx('ui-avatar', `ui-avatar--${(hash % 6) + 1}`, size && `ui-avatar--${size}`)} aria-hidden="true">
+      {Array.from(name.trim())[0] ?? '?'}
+    </span>
+  );
+}
+
 export function PlayerList({
   players,
   columns,
@@ -135,8 +146,9 @@ export function PlayerList({
     <ul className={cx('ui-list', columns && 'ui-list--columns')}>
       {players.map((p) => (
         <li key={p.id} className="ui-list__item">
-          <span className={cx('ui-dot', p.connected && 'ui-dot--online')} title={p.connected ? 'Verbonden' : 'Geen verbinding'} />
+          <Avatar name={p.name} size="sm" />
           <span className="ui-list__grow">{p.name}</span>
+          <span className={cx('ui-dot', p.connected && 'ui-dot--online')} title={p.connected ? 'Verbonden' : 'Geen verbinding'} />
           {onRemove && (
             <Button variant="ghost" size="small" onClick={() => onRemove(p)} aria-label={`${p.name} verwijderen`}>
               ✕
@@ -166,16 +178,37 @@ export function points(n: number) {
   return `${n} ${n === 1 ? 'punt' : 'punten'}`;
 }
 
-export function Standings({ standings, meId }: { standings: Standing[]; meId?: string | null }) {
+/**
+ * Klassement: avatar, naam, (optioneel) punten van de laatste ronde en het totaal.
+ */
+export function Standings({
+  standings,
+  meId,
+  deltas,
+}: {
+  standings: Standing[];
+  meId?: string | null;
+  deltas?: Record<string, number>;
+}) {
   return (
-    <ol className="ui-list">
-      {standings.map((s) => (
-        <li key={s.id} className={cx('ui-standings__item', s.id === meId && 'ui-standings__item--me')}>
-          <span className="ui-standings__rank">{s.rank}.</span>
-          <span className="ui-standings__name">{s.name}</span>
-          <span className="ui-standings__score">{points(s.score)}</span>
-        </li>
-      ))}
+    <ol className="ui-standings">
+      {standings.map((s) => {
+        const delta = deltas?.[s.id] ?? 0;
+        return (
+          <li key={s.id} className={cx('ui-standings__item', s.id === meId && 'ui-standings__item--me')}>
+            <Avatar name={s.name} />
+            <span className="ui-standings__name">
+              <span className="sr-only">{s.rank}e plaats: </span>
+              {s.name}
+              {s.id === meId && ' (jij)'}
+            </span>
+            <span className="ui-standings__delta">{delta > 0 ? `+${delta}` : ''}</span>
+            <span className="ui-standings__score" aria-label={points(s.score)}>
+              {s.score}
+            </span>
+          </li>
+        );
+      })}
     </ol>
   );
 }

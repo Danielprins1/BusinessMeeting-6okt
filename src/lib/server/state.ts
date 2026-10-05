@@ -4,6 +4,7 @@ import { ApiError } from './http';
 import type { Session } from './session';
 import { CONNECTED_WINDOW_MS, MAX_PLAYERS, MIN_PLAYERS, POINTS_PER_FOOLED_PLAYER } from '@/lib/constants';
 import { rankStandings } from '@/lib/standings';
+import { categoryFor } from './questions';
 import type { GameView, ProgressEntry, RevealData, RevealOption } from '@/lib/types';
 
 interface PlayerRecord {
@@ -94,7 +95,12 @@ export async function buildView(session: Session): Promise<GameView> {
       .eq('position', game.current_question)
       .single(),
   );
-  view.question = { number: question.position + 1, total: questionCount, text: question.question };
+  view.question = {
+    number: question.position + 1,
+    total: questionCount,
+    text: question.question,
+    category: categoryFor(question.position, question.question),
+  };
   view.isLastQuestion = isLastQuestion;
 
   const progress = (doneIds: Set<string>): ProgressEntry[] =>
@@ -153,6 +159,10 @@ export async function buildView(session: Session): Promise<GameView> {
 
     case 'SCOREBOARD': {
       view.standings = standings;
+      const scores = unwrap<{ player_id: string; points: number }[]>(
+        await client.from('round_scores').select('player_id, points').eq('question_id', question.id),
+      );
+      view.lastRound = Object.fromEntries(scores.map((s) => [s.player_id, s.points]));
       return view;
     }
   }

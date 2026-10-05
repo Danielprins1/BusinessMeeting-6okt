@@ -4,45 +4,65 @@
  * Alle kleuren, lettertypes, afrondingen en afstanden staan hier.
  * Pas deze waarden aan om de hele app een andere stijl te geven.
  * De componenten (components.css) gebruiken uitsluitend deze variabelen.
+ *
+ * Huidige stijl: quizshow-look met een donkerblauwe vraagband,
+ * lintvormige blauwe antwoordknoppen en een lichtblauw streepjespatroon.
  */
 :root {
-  /* Kleuren */
-  --color-bg: #f4f5f7;
+  /* Kleuren: basis */
+  --color-bg: #e9f1f6;
+  --color-bg-stripe: #dde9f1;
   --color-surface: #ffffff;
-  --color-surface-muted: #eef0f3;
-  --color-text: #1b1d21;
-  --color-text-muted: #5f6672;
-  --color-border: #d7dbe1;
+  --color-surface-muted: #f1f6f9;
+  --color-text: #1d2b36;
+  --color-text-muted: #5d7181;
+  --color-border: #c9d9e4;
 
-  --color-primary: #2f5bea;
-  --color-primary-hover: #2449c4;
+  /* Kleuren: merk */
+  --color-header: #1d5872;          /* vraagband / kopbalken */
+  --color-header-dark: #164558;
+  --color-header-text: #ffffff;
+  --color-header-accent: #f2c14e;   /* gouden lijntjes en ruitjes */
+
+  --color-primary: #2b80b5;         /* lintknoppen */
+  --color-primary-hover: #236c9a;
+  --color-primary-dark: #1b5a82;
   --color-primary-contrast: #ffffff;
+  --color-accent: #5fb0e0;          /* "+1" en accenten */
 
-  --color-secondary: #e3e7ee;
-  --color-secondary-hover: #d5dae3;
-  --color-secondary-contrast: #1b1d21;
+  --color-secondary: #dbe8f1;
+  --color-secondary-hover: #cbdde9;
+  --color-secondary-contrast: #1d5872;
 
-  --color-danger: #c62f2f;
+  --color-danger: #c0392b;
   --color-danger-contrast: #ffffff;
 
-  --color-success: #1d8a4a;
-  --color-success-bg: #e5f5ea;
+  --color-success: #1e8a50;
+  --color-success-bg: #e3f4ea;
   --color-error: #b42318;
   --color-error-bg: #fdecea;
-  --color-info-bg: #e8eefc;
+  --color-info-bg: #e3eff7;
 
-  --color-correct: #1d8a4a;
-  --color-correct-bg: #e5f5ea;
-  --color-selected: #2f5bea;
-  --color-disabled-bg: #eceef1;
-  --color-disabled-text: #8a919c;
+  --color-correct: #1e8a50;
+  --color-correct-bg: #e3f4ea;
+  --color-selected: #f2c14e;
+  --color-disabled-bg: #dfe6eb;
+  --color-disabled-text: #8a9aa6;
 
-  --color-online: #1d8a4a;
-  --color-offline: #b6bcc6;
+  --color-online: #1e8a50;
+  --color-offline: #b6c2cb;
+
+  /* Avatarkleuren (op volgorde van naam) */
+  --avatar-1: #e07a5f;
+  --avatar-2: #3d9970;
+  --avatar-3: #8e6cc8;
+  --avatar-4: #e0a030;
+  --avatar-5: #2b80b5;
+  --avatar-6: #d1497b;
 
   /* Typografie */
-  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-heading: var(--font-body);
+  --font-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-heading: 'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
   --text-xs: 0.8125rem;
@@ -52,17 +72,18 @@
   --text-xl: 1.625rem;
   --text-2xl: 2.125rem;
   --text-3xl: 3rem;
-  --text-code: clamp(3rem, 12vw, 6rem);
+  --text-code: clamp(3.5rem, 13vw, 7rem);
 
   --weight-normal: 400;
+  --weight-semibold: 600;
   --weight-bold: 700;
   --line-height: 1.45;
-  --letter-spacing-caps: 0.06em;
+  --letter-spacing-caps: 0.08em;
 
   /* Afronding */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
   --radius-pill: 999px;
 
   /* Afstanden */
@@ -74,9 +95,13 @@
   --space-6: 32px;
   --space-7: 48px;
 
+  /* Vormen */
+  --ribbon-tip: 14px;               /* punt aan de zijkant van lintknoppen */
+  --band-tip: 16px;                 /* punt onder de vraagband */
+
   /* Overig */
-  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
-  --focus-ring: 0 0 0 3px rgba(47, 91, 234, 0.35);
+  --shadow-card: 0 2px 6px rgba(22, 69, 88, 0.12);
+  --focus-ring: 0 0 0 3px rgba(242, 193, 78, 0.7);
   --button-height: 56px;
   --input-height: 52px;
   --width-player: 560px;

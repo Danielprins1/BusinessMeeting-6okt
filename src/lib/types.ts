@@ -57,6 +57,8 @@ export interface QuestionInfo {
   number: number; // 1-based
   total: number;
   text: string;
+  /** Kopje boven de vraag, bijv. "Dieren". */
+  category: string | null;
 }
 
 /** Wat iedere deelnemer van de server krijgt. Altijd gefilterd per rol. */
@@ -85,6 +87,8 @@ export interface GameView {
 
   /** SCOREBOARD / FINISHED (en REVEAL) */
   standings?: Standing[];
+  /** SCOREBOARD: punten per speler (id → punten) in de zojuist gespeelde ronde. */
+  lastRound?: Record<string, number>;
   isLastQuestion?: boolean;
 }
 

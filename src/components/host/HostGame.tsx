@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Alert, Button, Card, Counter, Eyebrow, PlayerList, ProgressList, RoomCode, Row, Stack, Standings } from '@/components/ui';
-import { FinalStandings, QuestionHeader, RevealView, RoundPoints } from '@/components/game/shared';
+import { FinalStandings, QuestionHeader, RevealView, RoundPoints, leaderTitle, quoted } from '@/components/game/shared';
 import { GameFrame } from '@/components/game/Frame';
 import { api, ClientError, type HostAction } from '@/lib/client/api';
 import { clearSession } from '@/lib/client/session';
@@ -134,18 +134,16 @@ function HostPhase({
       return (
         <Stack gap="lg">
           {view.question && <QuestionHeader question={view.question} large />}
-          <Card>
-            <Stack gap="sm">
-              <Eyebrow>Welk antwoord is echt?</Eyebrow>
-              <ul className="ui-list">
-                {view.options?.map((o) => (
-                  <li key={o.id} className="ui-list__item">
-                    {o.text}
-                  </li>
-                ))}
-              </ul>
-            </Stack>
-          </Card>
+          <Stack gap="sm">
+            <p className="ui-pick-label">Kies het echte antwoord</p>
+            <div className="ui-grid ui-grid--2">
+              {view.options?.map((o) => (
+                <div key={o.id} className="ui-option ui-option--static">
+                  {quoted(o.text)}
+                </div>
+              ))}
+            </div>
+          </Stack>
           <Card>
             <Stack>
               <Counter label="Stemmen" value={done} total={total} />
@@ -167,7 +165,7 @@ function HostPhase({
             <div className="ui-grid ui-grid--2">
               <RevealView reveal={view.reveal} />
               <div>
-                <RoundPoints reveal={view.reveal} />
+                <RoundPoints reveal={view.reveal} standings={view.standings ?? []} />
               </div>
             </div>
           )}
@@ -180,13 +178,11 @@ function HostPhase({
     case 'SCOREBOARD':
       return (
         <Stack gap="lg">
-          <Stack gap="sm">
-            <Eyebrow>
-              Na vraag {view.question?.number} van {view.question?.total}
-            </Eyebrow>
-            <h1 className="ui-title">Tussenstand</h1>
-          </Stack>
-          <Standings standings={view.standings ?? []} />
+          <h1 className="ui-bar ui-bar--inline">
+            Tussenstand · na vraag {view.question?.number} van {view.question?.total}
+          </h1>
+          <p className="ui-score-title">{leaderTitle(view.standings ?? [])}</p>
+          <Standings standings={view.standings ?? []} deltas={view.lastRound} />
           {view.isLastQuestion ? (
             <Button block onClick={() => run('finish')} loading={busy === 'finish'}>
               Toon eindstand

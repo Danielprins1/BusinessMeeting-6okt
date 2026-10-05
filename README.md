@@ -5,15 +5,16 @@ Spelers verzinnen bij een vraag een geloofwaardig nepantwoord en raden daarna we
 
 ## Vragen aanpassen
 
-De vragen en juiste antwoorden staan vast in **`src/content/vragen.ts`** (nu nog placeholders).
+De vragen en juiste antwoorden staan vast in **`src/content/vragen.ts`**: per vraag een `categorie` (kopje
+boven de vraag), de `vraag` (met `_____` voor het gat) en het `antwoord`.
 Pas daar de teksten aan (minimaal 1, maximaal 5 vragen) en push naar `main`; Render zet de nieuwe versie
 automatisch online. Ieder nieuw spel gebruikt dan de nieuwe vragen. De host hoeft niets in te voeren:
 *Spel starten* maakt direct een room aan.
 
 Dit bestand wordt alleen op de server gelezen, dus de antwoorden komen nooit in de browser terecht.
 
-> "Nepantwoord" is een werktitel (`APP_NAME` in `src/lib/constants.ts`). Het visuele ontwerp is bewust
-> neutraal gehouden, zodat het definitieve design er later makkelijk overheen kan.
+> "Nepantwoord" is een werktitel (`APP_NAME` in `src/lib/constants.ts`). Het design (quizshow-stijl met
+> vraagband, antwoordlinten en scorelijst) staat volledig in `src/styles/tokens.css` en `components.css`.
 
 ---
 
