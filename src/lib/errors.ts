@@ -10,7 +10,7 @@ export const ERROR_MESSAGES = {
   GAME_CLOSED: 'Dit spel is afgelopen.',
   NAME_TAKEN: 'Deze naam is al in gebruik. Kies een andere naam.',
   INVALID_NAME: 'Vul een naam in van maximaal 20 tekens.',
-  INVALID_QUESTIONS: 'Vul minimaal 1 en maximaal 5 vragen in, elk met een juist antwoord.',
+  INVALID_QUESTIONS: 'De vragenlijst van het spel is ongeldig (minimaal 1 en maximaal 5 vragen, elk met een antwoord).',
   NOT_ENOUGH_PLAYERS: 'Er zijn minimaal 2 spelers nodig om te starten.',
   INVALID_STATE: 'Deze actie is al uitgevoerd of kan nu niet.',
   NO_MORE_QUESTIONS: 'Er zijn geen vragen meer.',

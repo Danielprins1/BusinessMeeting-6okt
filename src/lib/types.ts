@@ -88,9 +88,3 @@ export interface GameView {
   isLastQuestion?: boolean;
 }
 
-/** Concept-vraag in het aanmaakscherm van de host. */
-export interface QuestionDraft {
-  key: string;
-  question: string;
-  correctAnswer: string;
-}

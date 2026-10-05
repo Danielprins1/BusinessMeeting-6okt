@@ -34,7 +34,7 @@ export function HostGame({ code }: { code: string }) {
     }
   }
 
-  async function backToStart(target: '/' | '/nieuw' = '/') {
+  async function backToStart() {
     if (session && state.kind === 'ready' && state.view.status !== 'CLOSED') {
       try {
         await api.host(session.roomCode, session.token, 'close');
@@ -43,7 +43,7 @@ export function HostGame({ code }: { code: string }) {
       }
     }
     clearSession();
-    router.push(target);
+    router.push('/');
   }
 
   function endGame() {
@@ -98,7 +98,7 @@ function HostPhase({
   view: GameView;
   busy: HostAction | null;
   run: (action: HostAction, extra?: Record<string, string>) => void;
-  backToStart: (target?: '/' | '/nieuw') => void;
+  backToStart: () => void;
 }) {
   const total = view.players.length;
 
@@ -209,16 +209,11 @@ function HostPhase({
               Opnieuw spelen
             </Button>
             <p className="ui-muted ui-small ui-center">
-              Zelfde vragen en dezelfde spelers; de punten beginnen weer bij 0.
+              Dezelfde spelers; de punten beginnen weer bij 0.
             </p>
-            <div className="ui-grid ui-grid--2">
-              <Button variant="secondary" onClick={() => backToStart('/nieuw')}>
-                Nieuw spel
-              </Button>
-              <Button variant="ghost" onClick={() => backToStart('/')}>
-                Terug naar start
-              </Button>
-            </div>
+            <Button variant="secondary" block onClick={backToStart}>
+              Terug naar start
+            </Button>
           </Stack>
         </Stack>
       );
@@ -228,7 +223,7 @@ function HostPhase({
         <Card>
           <Stack>
             <h1 className="ui-subtitle">Het spel is beëindigd.</h1>
-            <Button block onClick={() => backToStart('/')}>
+            <Button block onClick={backToStart}>
               Terug naar start
             </Button>
           </Stack>
@@ -279,8 +274,7 @@ function Lobby({ view, busy, run }: { view: GameView; busy: HostAction | null; r
         Start spel
       </Button>
       <p className="ui-muted ui-small ui-center">
-        {view.questionCount} {view.questionCount === 1 ? 'vraag' : 'vragen'} klaargezet. Na de start kan niemand meer
-        meedoen.
+        {view.questionCount} {view.questionCount === 1 ? 'vraag' : 'vragen'}. Na de start kan niemand meer meedoen.
       </p>
     </Stack>
   );

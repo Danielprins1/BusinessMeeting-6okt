@@ -12,6 +12,7 @@
 import assert from 'node:assert/strict';
 import { createClient } from '@supabase/supabase-js';
 import { readFileSync } from 'node:fs';
+import { VRAGEN } from '../src/content/vragen';
 
 const BASE = process.env.BASE_URL ?? 'http://localhost:3000';
 
@@ -47,7 +48,11 @@ function check(name: string, fn: () => void) {
   console.log(`  ✓ ${name}`);
 }
 
-const SECRETS = ['Nepal', 'Canberra'];
+// De test gebruikt de vaste vragen uit src/content/vragen.ts (minimaal 2 nodig).
+const A1 = VRAGEN[0].antwoord;
+const A2 = VRAGEN[1]?.antwoord;
+const TOTAL = VRAGEN.length;
+const SECRETS = VRAGEN.map((v) => v.antwoord);
 
 function assertNoSecret(text: string, secret: string, where: string) {
   assert.ok(!text.toLowerCase().includes(secret.toLowerCase()), `Juiste antwoord "${secret}" gelekt in ${where}`);
@@ -57,23 +62,15 @@ async function main() {
   console.log(`E2E tegen ${BASE}\n`);
 
   // ---------- Spel aanmaken ----------
-  const bad = await call('POST', '/api/games', { questions: [] });
-  check('spel zonder vragen wordt geweigerd', () => assert.equal(bad.json.code, 'INVALID_QUESTIONS'));
-  const six = await call('POST', '/api/games', {
-    questions: Array.from({ length: 6 }, (_, i) => ({ question: `V${i}`, correctAnswer: `A${i}` })),
-  });
-  check('meer dan 5 vragen wordt geweigerd', () => assert.equal(six.json.code, 'INVALID_QUESTIONS'));
-
+  assert.ok(TOTAL >= 2, 'De e2e-test heeft minimaal 2 vragen nodig in src/content/vragen.ts');
+  // Vragen meesturen heeft geen effect: het spel gebruikt altijd de vaste vragen.
   const created = await call('POST', '/api/games', {
-    questions: [
-      { question: 'Welk land heeft als enige een niet-rechthoekige vlag?', correctAnswer: 'Nepal' },
-      { question: 'Wat is de hoofdstad van Australië?', correctAnswer: 'Canberra' },
-    ],
+    questions: [{ question: 'Gehackt?', correctAnswer: 'Ja' }],
   });
   assert.equal(created.status, 200, created.text);
   const { roomCode, hostToken } = created.json as { roomCode: string; hostToken: string };
   check('roomcode van 5 tekens', () => assert.match(roomCode, /^[A-Z0-9]{5}$/));
-  assertNoSecret(created.text, 'Nepal', 'create-response');
+  for (const secret of SECRETS) assertNoSecret(created.text, secret, 'create-response');
 
   // ---------- Realtime meeluisteren ----------
   let refreshEvents = 0;
@@ -162,17 +159,18 @@ async function main() {
 
   // ---------- Vraag 1: nepantwoorden ----------
   const s0 = await state(0);
-  check('speler ziet vraag 1 van 2', () => {
+  check(`speler ziet vraag 1 van ${TOTAL} (vaste vragen)`, () => {
     assert.equal(s0.json.status, 'SUBMITTING_ANSWERS');
     assert.equal(s0.json.question.number, 1);
-    assert.equal(s0.json.question.total, 2);
+    assert.equal(s0.json.question.total, TOTAL);
+    assert.equal(s0.json.question.text, VRAGEN[0].vraag);
   });
-  assertNoSecret(s0.text, 'Nepal', 'spelerstatus (invoerfase)');
+  assertNoSecret(s0.text, A1, 'spelerstatus (invoerfase)');
 
   const voteEarly = await vote(0, '00000000-0000-0000-0000-000000000000');
   check('stemmen vóór de stemfase geweigerd', () => assert.equal(voteEarly.json.code, 'PHASE_CLOSED'));
 
-  for (const variant of ['Nepal', '  NEPAL ', 'nepal!', 'Népal']) {
+  for (const variant of [A1, `  ${A1.toUpperCase()} `, `${A1.toLowerCase()}!`]) {
     const r = await answer(0, variant);
     check(`juiste antwoord "${variant}" geweigerd met neutrale melding`, () => {
       assert.equal(r.json.code, 'CORRECT_ANSWER');
@@ -215,7 +213,7 @@ async function main() {
     assert.equal(done, 1 + 1 + 1 + 12);
     assert.ok(!host.text.includes('Bhutan'), 'host mag de nepantwoorden nog niet zien');
   });
-  assertNoSecret(host.text, 'Nepal', 'hoststatus (invoerfase)');
+  assertNoSecret(host.text, A1, 'hoststatus (invoerfase)');
 
   // ---------- Stemmen ----------
   const toVoting = await Promise.all([hostAction('openVoting'), hostAction('openVoting')]);
@@ -227,10 +225,10 @@ async function main() {
 
   const views = await Promise.all(p.map((_, i) => state(i)));
   // In de stemfase staat het juiste antwoord als gewone optie tussen de rest (zonder markering).
-  check('stemfase: "Nepal" komt precies één keer voor, als gewone optie', () => {
-    for (const v of views) assert.equal(v.text.split('Nepal').length - 1, 1);
+  check('stemfase: het juiste antwoord komt precies één keer voor, als gewone optie', () => {
+    for (const v of views) assert.equal(v.text.split(A1).length - 1, 1);
   });
-  for (const t of realtimePayloads) assertNoSecret(t, 'Nepal', 'realtime-bericht');
+  for (const t of realtimePayloads) assertNoSecret(t, A1, 'realtime-bericht');
 
   const options = views[0].json.options as { id: string; text: string; isOwn: boolean }[];
   check('16 opties: 15 nepantwoorden + het juiste antwoord', () => assert.equal(options.length, 16));
@@ -296,7 +294,7 @@ async function main() {
   const rv = await state(2);
   check('na onthulling is het juiste antwoord zichtbaar', () => {
     assert.equal(rv.json.status, 'REVEAL');
-    assert.equal(rv.json.reveal.correctAnswer, 'Nepal');
+    assert.equal(rv.json.reveal.correctAnswer, A1);
   });
   const pts = new Map<string, number>(rv.json.reveal.roundPoints.map((x: Json) => [x.id, x.points]));
   const bhutanOpt = rv.json.reveal.options.find((o: Json) => o.text === 'Bhutan');
@@ -332,11 +330,11 @@ async function main() {
 
   assert.equal((await hostAction('nextQuestion')).status, 200);
   const q2 = await state(0);
-  check('vraag 2 van 2', () => assert.equal(q2.json.question.number, 2));
-  assertNoSecret(q2.text, 'Canberra', 'vraag 2');
+  check(`vraag 2 van ${TOTAL}`, () => assert.equal(q2.json.question.number, 2));
+  assertNoSecret(q2.text, A2, 'vraag 2');
   const bhutan2 = await answer(2, 'Bhutan');
   check('Bhutan mag in vraag 2 opnieuw (uniek per vraag)', () => assert.equal(bhutan2.status, 200));
-  assert.equal((await answer(3, 'canberra')).json.code, 'CORRECT_ANSWER');
+  assert.equal((await answer(3, A2.toLowerCase())).json.code, 'CORRECT_ANSWER');
   assert.equal((await answer(4, 'Sydney')).status, 200);
 
   // host gaat door zonder dat iedereen antwoordde
@@ -352,13 +350,21 @@ async function main() {
     assert.equal(rv2.json.reveal.roundPoints.find((x: Json) => x.id === p[4].id).points, 3),
   );
   assert.equal((await hostAction('scoreboard')).status, 200);
+  // Eventuele overige vragen snel doorlopen (niemand antwoordt of stemt).
+  for (let q = 3; q <= TOTAL; q++) {
+    assert.equal((await state(4)).json.isLastQuestion, false);
+    for (const action of ['nextQuestion', 'openVoting', 'reveal', 'scoreboard']) {
+      const r = await hostAction(action);
+      assert.equal(r.status, 200, r.text);
+    }
+  }
   const sb2 = await state(4);
-  check('laatste vraag gemarkeerd', () => assert.equal(sb2.json.isLastQuestion, true));
+  check(`laatste vraag (${TOTAL}) gemarkeerd`, () => assert.equal(sb2.json.isLastQuestion, true));
   assert.equal((await hostAction('nextQuestion')).json.code, 'NO_MORE_QUESTIONS');
   assert.equal((await hostAction('finish')).status, 200);
 
   const fin = await state(4);
-  check('eindstand: totaal = som van beide rondes', () => {
+  check('eindstand: totaal = som van alle rondes', () => {
     assert.equal(fin.json.status, 'FINISHED');
     const r1 = pts.get(p[4].id)!;
     assert.equal(fin.json.standings.find((s: Json) => s.id === p[4].id).score, r1 + 3);

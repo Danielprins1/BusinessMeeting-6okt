@@ -1,14 +1,33 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Screen, Stack, Card } from '@/components/ui';
+import { Alert, Button, Card, Screen, Stack } from '@/components/ui';
 import { APP_NAME } from '@/lib/constants';
-import { loadSession, type StoredSession } from '@/lib/client/session';
+import { api, ClientError } from '@/lib/client/api';
+import { loadSession, saveSession, type StoredSession } from '@/lib/client/session';
 
 export default function StartPage() {
+  const router = useRouter();
   const [saved, setSaved] = useState<StoredSession | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => setSaved(loadSession()), []);
+
+  /** Maakt direct een room aan met de vaste vragen; wie klikt wordt host. */
+  async function startGame() {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await api.createGame();
+      saveSession({ role: 'host', roomCode: res.roomCode, token: res.hostToken });
+      router.push(`/host/${res.roomCode}`);
+    } catch (err) {
+      setError(err instanceof ClientError ? err.message : 'Er ging iets mis. Probeer het opnieuw.');
+      setBusy(false);
+    }
+  }
 
   return (
     <Screen>
@@ -21,12 +40,13 @@ export default function StartPage() {
         </Stack>
 
         <Stack>
-          <Link href="/nieuw" className="ui-button ui-button--primary ui-button--block">
+          <Button block onClick={startGame} loading={busy}>
             Spel starten
-          </Link>
+          </Button>
           <Link href="/meedoen" className="ui-button ui-button--secondary ui-button--block">
             Meedoen
           </Link>
+          {error && <Alert kind="error">{error}</Alert>}
         </Stack>
 
         {saved && (

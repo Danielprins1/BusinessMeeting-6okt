@@ -1,14 +1,16 @@
 import { db } from '@/lib/server/supabase';
-import { ApiError, codeFromDbError, handle, ok, readJson } from '@/lib/server/http';
+import { ApiError, codeFromDbError, handle, ok } from '@/lib/server/http';
 import { hashToken, newRoomCode, newToken } from '@/lib/server/tokens';
-import { parseQuestions } from '@/lib/server/validation';
+import { fixedQuestions } from '@/lib/server/questions';
 
 export const dynamic = 'force-dynamic';
 
-/** Spel aanmaken. Wie dit doet, krijgt het (geheime) hosttoken. */
-export const POST = handle(async (req: Request) => {
-  const body = await readJson(req);
-  const questions = parseQuestions(body.questions);
+/**
+ * Spel aanmaken met de vaste vragen uit src/content/vragen.ts.
+ * Wie dit doet, wordt host en krijgt het (geheime) hosttoken.
+ */
+export const POST = handle(async () => {
+  const questions = fixedQuestions();
   const hostToken = newToken();
 
   // Bij een (zeldzame) botsing van de roomcode gewoon een nieuwe proberen.

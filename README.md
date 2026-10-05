@@ -1,7 +1,16 @@
 # Nepantwoord – realtime multiplayer partyspel
 
 Spelers verzinnen bij een vraag een geloofwaardig nepantwoord en raden daarna welk antwoord echt is.
-1 host, 2 tot 30 spelers, 1 tot 5 vragen. Alles in het Nederlands, zonder accounts.
+1 host, 2 tot 30 spelers, maximaal 5 vaste vragen. Alles in het Nederlands, zonder accounts.
+
+## Vragen aanpassen
+
+De vragen en juiste antwoorden staan vast in **`src/content/vragen.ts`** (nu nog placeholders).
+Pas daar de teksten aan (minimaal 1, maximaal 5 vragen) en push naar `main`; Render zet de nieuwe versie
+automatisch online. Ieder nieuw spel gebruikt dan de nieuwe vragen. De host hoeft niets in te voeren:
+*Spel starten* maakt direct een room aan.
+
+Dit bestand wordt alleen op de server gelezen, dus de antwoorden komen nooit in de browser terecht.
 
 > "Nepantwoord" is een werktitel (`APP_NAME` in `src/lib/constants.ts`). Het visuele ontwerp is bewust
 > neutraal gehouden, zodat het definitieve design er later makkelijk overheen kan.
@@ -57,7 +66,9 @@ een hostactie, en de SQL-functie controleert de huidige status (een dubbelklik d
 
 ### Veiligheid van het juiste antwoord
 
-- Het juiste antwoord wordt bij het aanmaken naar de server gestuurd en daarna **pas in de status `REVEAL`**
+- De vragen staan in `src/content/vragen.ts` en worden alleen server-side ingelezen (via
+  `src/lib/server/questions.ts`). Bij het aanmaken van een spel worden ze in de database gezet; het juiste
+  antwoord wordt daarna **pas in de status `REVEAL`**
   weer uit de database gelezen (`src/lib/server/state.ts`). Ook de host krijgt het vóór de onthulling niet
   terug, omdat het hostscherm vaak voor iedereen zichtbaar is.
 - In de stemfase staat het juiste antwoord als gewone optie tussen de nepantwoorden: alleen `id` en `text`,
@@ -118,12 +129,12 @@ nepantwoord/
 │  └─ migrations/…_schema.sql          tabellen, constraints, RLS, SQL-spelfuncties
 ├─ src/
 │  ├─ app/                             routes (Next.js App Router)
-│  │  ├─ page.tsx                      startscherm: Spel starten / Meedoen
-│  │  ├─ nieuw/page.tsx                host: vragen invoeren, ordenen, spel aanmaken
+│  │  ├─ page.tsx                      startscherm: Spel starten (maakt direct een room) / Meedoen
 │  │  ├─ meedoen/page.tsx              speler: roomcode + naam
 │  │  ├─ host/[code]/page.tsx          hostscherm
 │  │  ├─ spel/[code]/page.tsx          spelersscherm
 │  │  └─ api/games/…                   API: aanmaken, join, state, answer, vote, host
+│  ├─ content/vragen.ts                ← DE VASTE VRAGEN EN ANTWOORDEN
 │  ├─ components/
 │  │  ├─ ui/index.tsx                  neutrale bouwstenen (Button, Card, TextField, lijsten, klassement …)
 │  │  ├─ game/                         gedeeld: vraagkop, onthulling, eindstand, laad-/foutschermen

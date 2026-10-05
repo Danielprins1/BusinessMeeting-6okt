@@ -1,7 +1,7 @@
 'use client';
 
 import { ERROR_MESSAGES, isErrorCode, type ErrorCode } from '@/lib/errors';
-import type { GameView, QuestionDraft } from '@/lib/types';
+import type { GameView } from '@/lib/types';
 
 export class ClientError extends Error {
   constructor(public code: ErrorCode, message?: string) {
@@ -41,13 +41,8 @@ async function request<T>(path: string, init: RequestInit & { token?: string } =
 const enc = encodeURIComponent;
 
 export const api = {
-  createGame(questions: QuestionDraft[]) {
-    return request<{ roomCode: string; hostToken: string }>('/api/games', {
-      method: 'POST',
-      body: JSON.stringify({
-        questions: questions.map((q) => ({ question: q.question, correctAnswer: q.correctAnswer })),
-      }),
-    });
+  createGame() {
+    return request<{ roomCode: string; hostToken: string }>('/api/games', { method: 'POST', body: '{}' });
   },
   join(roomCode: string, name: string) {
     return request<{ roomCode: string; playerId: string; playerToken: string; name: string }>(
