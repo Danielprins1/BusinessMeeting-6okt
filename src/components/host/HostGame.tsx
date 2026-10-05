@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Alert, Button, Card, Counter, Eyebrow, PlayerList, ProgressList, RoomCode, Row, Stack, Standings } from '@/components/ui';
 import { FinalStandings, QuestionHeader, RevealView, RoundPoints, leaderTitle, quoted } from '@/components/game/shared';
 import { GameFrame } from '@/components/game/Frame';
+import { QrCode } from '@/components/ui/QrCode';
 import { api, ClientError, type HostAction } from '@/lib/client/api';
 import { clearSession } from '@/lib/client/session';
 import { useGame } from '@/lib/client/useGame';
@@ -237,12 +238,16 @@ function Lobby({ view, busy, run }: { view: GameView; busy: HostAction | null; r
   return (
     <Stack gap="lg">
       <Card>
-        <Stack>
-          <RoomCode code={view.roomCode} />
-          <p className="ui-center ui-muted ui-small">
-            Ga naar <strong>{joinUrl ? new URL(joinUrl).host : ''}</strong>, kies Meedoen en vul de roomcode in.
-          </p>
-        </Stack>
+        <div className="ui-join">
+          {joinUrl && <QrCode value={joinUrl} label={`QR-code om mee te doen met room ${view.roomCode}`} />}
+          <div className="ui-join__text">
+            <RoomCode code={view.roomCode} />
+            <p className="ui-pick-label">Scan de QR-code om mee te doen</p>
+            <p className="ui-muted ui-small">
+              of ga naar <strong>{joinUrl ? new URL(joinUrl).host : ''}</strong>, kies Meedoen en vul de roomcode in.
+            </p>
+          </div>
+        </div>
       </Card>
 
       <Card>

@@ -62,6 +62,7 @@ function JoinForm() {
           onChange={(e) => setName(e.target.value)}
           maxLength={MAX_NAME_LENGTH}
           autoComplete="nickname"
+          autoFocus={!!params.get('code')}
           placeholder="Je naam"
           hint={`Maximaal ${MAX_NAME_LENGTH} tekens. Iedere naam kan maar één keer voorkomen in een room.`}
           required
