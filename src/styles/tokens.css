@@ -1,89 +1,98 @@
 /*
- * DESIGN TOKENS
+ * DESIGN TOKENS — BRANIE
  * ------------------------------------------------------------------
  * Alle kleuren, lettertypes, afrondingen en afstanden staan hier.
- * Pas deze waarden aan om de hele app een andere stijl te geven.
- * De componenten (components.css) gebruiken uitsluitend deze variabelen.
- *
- * Huidige stijl: quizshow-look met een donkerblauwe vraagband,
- * lintvormige blauwe antwoordknoppen en een lichtblauw streepjespatroon.
+ * Stijl: Amsterdam van 1950 tot nu. Amsterdams rood, crème, mosterd,
+ * lichtblauw en olijfgroen; handgetekende kapitalen, een stevige serif
+ * en handschrift voor jaartallen. Het rode ✱ en de XXX zijn het motief.
  */
 :root {
+  /* Merkkleuren */
+  --brand-red: #e30613;
+  --brand-red-dark: #b8050f;
+  --brand-maroon: #8e1b12;
+  --brand-cream: #fffaf0;
+  --brand-mustard: #e3a700;
+  --brand-sky: #a6dde9;
+  --brand-olive: #8a9500;
+  --brand-ink: #2a1a14;
+  --brand-white: #ffffff;
+
   /* Kleuren: basis */
-  --color-bg: #e9f1f6;
-  --color-bg-stripe: #dde9f1;
-  --color-surface: #ffffff;
-  --color-surface-muted: #f1f6f9;
-  --color-text: #1d2b36;
-  --color-text-muted: #5d7181;
-  --color-border: #c9d9e4;
+  --color-bg: var(--brand-cream);
+  --color-surface: var(--brand-white);
+  --color-surface-muted: #f6eedd;
+  --color-text: var(--brand-maroon);
+  --color-text-muted: #9a6a5f;
+  --color-border: #ecdcc4;
 
-  /* Kleuren: merk */
-  --color-header: #1d5872;          /* vraagband / kopbalken */
-  --color-header-dark: #164558;
-  --color-header-text: #ffffff;
-  --color-header-accent: #f2c14e;   /* gouden lijntjes en ruitjes */
+  /* Kleuren: vlakken */
+  --color-header: var(--brand-red);
+  --color-header-text: var(--brand-white);
+  --color-header-accent: var(--brand-mustard);
 
-  --color-primary: #2b80b5;         /* lintknoppen */
-  --color-primary-hover: #236c9a;
-  --color-primary-dark: #1b5a82;
-  --color-primary-contrast: #ffffff;
-  --color-accent: #5fb0e0;          /* "+1" en accenten */
+  --color-primary: var(--brand-red);
+  --color-primary-hover: var(--brand-red-dark);
+  --color-primary-dark: var(--brand-maroon);
+  --color-primary-contrast: var(--brand-white);
+  --color-accent: var(--brand-red);
 
-  --color-secondary: #dbe8f1;
-  --color-secondary-hover: #cbdde9;
-  --color-secondary-contrast: #1d5872;
+  --color-secondary: var(--brand-mustard);
+  --color-secondary-hover: #cc9600;
+  --color-secondary-contrast: var(--brand-white);
 
-  --color-danger: #c0392b;
-  --color-danger-contrast: #ffffff;
+  --color-danger: var(--brand-maroon);
+  --color-danger-contrast: var(--brand-white);
 
-  --color-success: #1e8a50;
-  --color-success-bg: #e3f4ea;
-  --color-error: #b42318;
-  --color-error-bg: #fdecea;
-  --color-info-bg: #e3eff7;
+  --color-success: #5f6800;
+  --color-success-bg: #eef1cc;
+  --color-error: var(--brand-red-dark);
+  --color-error-bg: #fde3e1;
+  --color-info-bg: #e3f4f8;
 
-  --color-correct: #1e8a50;
-  --color-correct-bg: #e3f4ea;
-  --color-selected: #f2c14e;
-  --color-disabled-bg: #dfe6eb;
-  --color-disabled-text: #8a9aa6;
+  --color-correct: var(--brand-olive);
+  --color-correct-bg: #f1f4d6;
+  --color-selected: var(--brand-mustard);
+  --color-disabled-bg: #efe6d6;
+  --color-disabled-text: #b9a28f;
 
-  --color-online: #1e8a50;
-  --color-offline: #b6c2cb;
+  --color-online: var(--brand-olive);
+  --color-offline: #d8c8b3;
 
-  /* Avatarkleuren (op volgorde van naam) */
-  --avatar-1: #e07a5f;
-  --avatar-2: #3d9970;
-  --avatar-3: #8e6cc8;
-  --avatar-4: #e0a030;
-  --avatar-5: #2b80b5;
-  --avatar-6: #d1497b;
+  /* Avatarkleuren */
+  --avatar-1: var(--brand-red);
+  --avatar-2: var(--brand-olive);
+  --avatar-3: var(--brand-mustard);
+  --avatar-4: #3f9fb5;
+  --avatar-5: var(--brand-maroon);
+  --avatar-6: #d9567a;
 
   /* Typografie */
-  --font-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
-  --font-heading: 'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif;
+  --font-display: 'Londrina Solid', 'Arial Black', Impact, sans-serif;
+  --font-body: 'Noto Serif', Georgia, 'Times New Roman', serif;
+  --font-script: 'Caveat', 'Segoe Print', cursive;
+  --font-heading: var(--font-display);
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
   --text-xs: 0.8125rem;
   --text-sm: 0.9375rem;
   --text-md: 1.0625rem;
-  --text-lg: 1.25rem;
-  --text-xl: 1.625rem;
-  --text-2xl: 2.125rem;
-  --text-3xl: 3rem;
-  --text-code: clamp(3.5rem, 13vw, 7rem);
+  --text-lg: 1.3rem;
+  --text-xl: 1.7rem;
+  --text-2xl: 2.3rem;
+  --text-3xl: 3.2rem;
+  --text-code: clamp(3.8rem, 15vw, 7.5rem);
 
   --weight-normal: 400;
-  --weight-semibold: 600;
-  --weight-bold: 700;
+  --weight-semibold: 700;
+  --weight-bold: 900;
   --line-height: 1.45;
-  --letter-spacing-caps: 0.08em;
+  --letter-spacing-caps: 0.04em;
 
-  /* Afronding */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
+  /* Afronding (posterachtig: bijna recht) */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
   --radius-pill: 999px;
 
   /* Afstanden */
@@ -95,16 +104,14 @@
   --space-6: 32px;
   --space-7: 48px;
 
-  /* Vormen */
-  --ribbon-tip: 14px;               /* punt aan de zijkant van lintknoppen */
-  --band-tip: 16px;                 /* punt onder de vraagband */
-
-  /* Overig */
-  --shadow-card: 0 2px 6px rgba(22, 69, 88, 0.12);
-  --focus-ring: 0 0 0 3px rgba(242, 193, 78, 0.7);
-  --button-height: 56px;
-  --input-height: 52px;
+  /* Vormen en effecten */
+  --shadow-card: 4px 4px 0 var(--color-border);
+  --shadow-pop: 4px 4px 0 var(--brand-maroon);
+  --focus-ring: 0 0 0 3px var(--brand-mustard);
+  --tilt: 1.2deg;
+  --button-height: 58px;
+  --input-height: 54px;
   --width-player: 560px;
   --width-host: 1100px;
-  --transition: 120ms ease;
+  --transition: 140ms ease;
 }

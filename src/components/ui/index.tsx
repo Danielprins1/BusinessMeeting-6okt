@@ -2,12 +2,36 @@
  * Herbruikbare, neutrale UI-componenten.
  * Ze bevatten geen spellogica; de opmaak komt volledig uit src/styles.
  */
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react';
+import type { ButtonHTMLAttributes, CSSProperties, InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react';
 import { useId } from 'react';
 import type { PlayerSummary, ProgressEntry, Standing } from '@/lib/types';
 
 function cx(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(' ');
+}
+
+/** Het rode BRANIE-sterretje (✱), getekend als penseelstreken. */
+export function Star({ className }: { className?: string }) {
+  return (
+    <span className={cx('ui-star', className)} aria-hidden="true">
+      <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="17" strokeLinecap="round">
+        <path d="M50 10 L52 90" />
+        <path d="M14 30 L86 68" />
+        <path d="M84 28 L16 72" />
+      </svg>
+    </span>
+  );
+}
+
+/** De drie Andreaskruisen uit het Amsterdamse wapen. */
+export function Xxx() {
+  return (
+    <div className="ui-xxx" aria-hidden="true">
+      <span>X</span>
+      <span>X</span>
+      <span>X</span>
+    </div>
+  );
 }
 
 export function Screen({ wide, children }: { wide?: boolean; children: ReactNode }) {
@@ -27,7 +51,7 @@ export function Card({ muted, className, children }: { muted?: boolean; classNam
 }
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'light';
   size?: 'normal' | 'small';
   block?: boolean;
   loading?: boolean;
@@ -191,18 +215,24 @@ export function Standings({
   deltas?: Record<string, number>;
 }) {
   return (
-    <ol className="ui-standings">
-      {standings.map((s) => {
+    <ol className="ui-standings ui-stagger">
+      {standings.map((s, i) => {
         const delta = deltas?.[s.id] ?? 0;
         return (
-          <li key={s.id} className={cx('ui-standings__item', s.id === meId && 'ui-standings__item--me')}>
+          <li
+            key={s.id}
+            className={cx('ui-standings__item', s.id === meId && 'ui-standings__item--me')}
+            style={{ '--i': i } as CSSProperties}
+          >
             <Avatar name={s.name} />
             <span className="ui-standings__name">
               <span className="sr-only">{s.rank}e plaats: </span>
               {s.name}
               {s.id === meId && ' (jij)'}
             </span>
-            <span className="ui-standings__delta">{delta > 0 ? `+${delta}` : ''}</span>
+            <span className="ui-standings__delta" style={{ '--i': i } as CSSProperties}>
+              {delta > 0 ? `+${delta}` : ''}
+            </span>
             <span className="ui-standings__score" aria-label={points(s.score)}>
               {s.score}
             </span>

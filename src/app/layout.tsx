@@ -6,12 +6,13 @@ import { APP_NAME } from '@/lib/constants';
 
 export const metadata: Metadata = {
   title: APP_NAME,
-  description: 'Verzin geloofwaardige nepantwoorden en raad welk antwoord echt is.',
+  description: 'Het Amsterdamse bluffspel: verzin een nepantwoord en raad wat er écht gebeurde in Mokum.',
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  themeColor: '#e30613',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -23,7 +24,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Londrina+Solid:wght@400;900&family=Noto+Serif:wght@400;700&display=swap"
         />
       </head>
       <body>{children}</body>

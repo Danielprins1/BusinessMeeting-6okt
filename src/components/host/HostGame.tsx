@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { burst, celebrate } from '@/lib/client/confetti';
 import { Alert, Button, Card, Counter, Eyebrow, PlayerList, ProgressList, RoomCode, Row, Stack, Standings } from '@/components/ui';
-import { FinalStandings, QuestionHeader, RevealView, RoundPoints, leaderTitle, quoted } from '@/components/game/shared';
+import { FinalStandings, QuestionHeader, RevealView, RoundPoints, leaderTitle, order, quoted } from '@/components/game/shared';
 import { GameFrame } from '@/components/game/Frame';
 import { QrCode } from '@/components/ui/QrCode';
 import { api, ClientError, type HostAction } from '@/lib/client/api';
@@ -83,7 +84,13 @@ export function HostGame({ code }: { code: string }) {
             </Row>
           )}
           {error && <Alert kind="error">{error}</Alert>}
-          <HostPhase view={state.view} busy={busy} run={run} backToStart={backToStart} />
+          <HostPhase
+            key={`${state.view.status}-${state.view.question?.number ?? 0}`}
+            view={state.view}
+            busy={busy}
+            run={run}
+            backToStart={backToStart}
+          />
         </Stack>
       )}
     </GameFrame>
@@ -110,7 +117,7 @@ function HostPhase({
     case 'SUBMITTING_ANSWERS': {
       const done = view.answerProgress?.filter((p) => p.done).length ?? 0;
       return (
-        <Stack gap="lg">
+        <Stack gap="lg" className="ui-enter">
           {view.question && <QuestionHeader question={view.question} large />}
           <Card>
             <Stack>
@@ -133,13 +140,13 @@ function HostPhase({
     case 'VOTING': {
       const done = view.voteProgress?.filter((p) => p.done).length ?? 0;
       return (
-        <Stack gap="lg">
+        <Stack gap="lg" className="ui-enter">
           {view.question && <QuestionHeader question={view.question} large />}
           <Stack gap="sm">
-            <p className="ui-pick-label">Kies het echte antwoord</p>
-            <div className="ui-grid ui-grid--2">
-              {view.options?.map((o) => (
-                <div key={o.id} className="ui-option ui-option--static">
+            <p className="ui-pick-label">Welk antwoord is echt?</p>
+            <div className="ui-grid ui-grid--2 ui-stagger">
+              {view.options?.map((o, i) => (
+                <div key={o.id} className="ui-option ui-option--static" style={order(i)}>
                   {quoted(o.text)}
                 </div>
               ))}
@@ -160,7 +167,8 @@ function HostPhase({
 
     case 'REVEAL':
       return (
-        <Stack gap="lg">
+        <Stack gap="lg" className="ui-enter">
+          <Confetti kind="burst" />
           {view.question && <QuestionHeader question={view.question} large />}
           {view.reveal && (
             <div className="ui-grid ui-grid--2">
@@ -178,7 +186,7 @@ function HostPhase({
 
     case 'SCOREBOARD':
       return (
-        <Stack gap="lg">
+        <Stack gap="lg" className="ui-enter">
           <h1 className="ui-bar ui-bar--inline">
             Tussenstand · na vraag {view.question?.number} van {view.question?.total}
           </h1>
@@ -198,8 +206,9 @@ function HostPhase({
 
     case 'FINISHED':
       return (
-        <Stack gap="lg">
-          <h1 className="ui-title ui-center">Eindstand</h1>
+        <Stack gap="lg" className="ui-enter">
+          <Confetti kind="celebrate" />
+          <h1 className="ui-bar ui-bar--red ui-bar--inline">Eindstand</h1>
           <FinalStandings standings={view.standings ?? []} />
           <Stack>
             <Button block onClick={() => run('restart')} loading={busy === 'restart'}>
@@ -229,6 +238,16 @@ function HostPhase({
   }
 }
 
+/** Confetti op het hostscherm (vaak op een groot scherm voor iedereen). */
+function Confetti({ kind }: { kind: 'burst' | 'celebrate' }) {
+  useEffect(() => {
+    // Even wachten tot de onthulling in beeld schuift.
+    const t = setTimeout(() => (kind === 'burst' ? burst() : celebrate(6000)), 450);
+    return () => clearTimeout(t);
+  }, [kind]);
+  return null;
+}
+
 function Lobby({ view, busy, run }: { view: GameView; busy: HostAction | null; run: (a: HostAction, e?: Record<string, string>) => void }) {
   const [joinUrl, setJoinUrl] = useState('');
   useEffect(() => setJoinUrl(`${window.location.origin}/meedoen?code=${view.roomCode}`), [view.roomCode]);
@@ -242,7 +261,7 @@ function Lobby({ view, busy, run }: { view: GameView; busy: HostAction | null; r
           {joinUrl && <QrCode value={joinUrl} label={`QR-code om mee te doen met room ${view.roomCode}`} />}
           <div className="ui-join__text">
             <RoomCode code={view.roomCode} />
-            <p className="ui-pick-label">Scan de QR-code om mee te doen</p>
+            <p className="ui-pick-label">Scan &amp; doe mee!</p>
             <p className="ui-muted ui-small">
               of ga naar <strong>{joinUrl ? new URL(joinUrl).host : ''}</strong>, kies Meedoen en vul de roomcode in.
             </p>

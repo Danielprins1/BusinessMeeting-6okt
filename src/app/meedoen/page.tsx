@@ -80,7 +80,7 @@ export default function JoinPage() {
   return (
     <Screen>
       <Stack gap="lg">
-        <h1 className="ui-title">Meedoen</h1>
+        <h1 className="ui-bar ui-bar--red">Kom d&apos;r in!</h1>
         <Suspense>
           <JoinForm />
         </Suspense>

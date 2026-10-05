@@ -17,5 +17,5 @@ export const CONNECTED_WINDOW_MS = 15_000;
 export const ROOM_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 export const ROOM_CODE_LENGTH = 5;
 
-/** Werktitel; vervang door de definitieve naam. */
-export const APP_NAME = 'Nepantwoord';
+/** Naam van het spel. */
+export const APP_NAME = 'BRANIE';

@@ -1,8 +1,9 @@
 /*
- * COMPONENTSTIJLEN
+ * COMPONENTSTIJLEN — BRANIE
  * ------------------------------------------------------------------
  * Uitsluitend opgebouwd uit de tokens in tokens.css. Klassenamen
  * beginnen met "ui-" en horen bij de React-componenten in src/components.
+ * Animaties staan onderaan en vallen weg bij "verminderde beweging".
  */
 *,
 *::before,
@@ -12,6 +13,15 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* Geen zoom bij snel twee keer tikken (knijp-zoom blijft werken). */
+  touch-action: manipulation;
+}
+
+button,
+a,
+input,
+textarea {
+  touch-action: manipulation;
 }
 
 body {
@@ -20,23 +30,24 @@ body {
   font-family: var(--font-body);
   font-size: var(--text-md);
   line-height: var(--line-height);
-  background-color: var(--color-bg);
-  background-image: repeating-linear-gradient(
-    -45deg,
-    var(--color-bg) 0 10px,
-    var(--color-bg-stripe) 10px 12px
-  );
+  background: var(--color-bg);
   min-height: 100dvh;
+  overflow-x: clip;
 }
 
 h1, h2, h3 {
-  font-family: var(--font-heading);
-  line-height: 1.15;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  line-height: 1.05;
   margin: 0;
 }
 
 p {
   margin: 0;
+}
+
+a {
+  color: inherit;
 }
 
 /* ---------- Layout ---------- */
@@ -49,8 +60,9 @@ p {
   flex-direction: column;
   gap: var(--space-5);
   min-height: 100dvh;
-  background: var(--color-surface);
-  box-shadow: 0 0 0 1px var(--color-border);
+  /* Animaties (stempel, kantelen) mogen nooit buiten het scherm uitsteken:
+     anders zoomen telefoons ongevraagd in. */
+  overflow-x: clip;
 }
 .ui-screen--wide {
   max-width: var(--width-host);
@@ -83,24 +95,71 @@ p {
 
 .ui-center { text-align: center; }
 
+/* ---------- Merkelementen ---------- */
+.ui-star {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  flex: none;
+  color: var(--brand-red);
+  vertical-align: -0.05em;
+}
+.ui-star svg { display: block; width: 100%; height: 100%; }
+
+/* Drie Andreaskruisen */
+.ui-xxx {
+  display: flex;
+  justify-content: center;
+  gap: 0.35em;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.ui-script {
+  font-family: var(--font-script);
+  font-weight: 700;
+}
+
+/* Rode krabbel-onderstreping */
+.ui-scribble {
+  position: relative;
+  display: inline-block;
+}
+.ui-scribble::after {
+  content: '';
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  bottom: -0.12em;
+  height: 0.16em;
+  background:
+    linear-gradient(var(--brand-red), var(--brand-red)) 0 0 / 100% 45% no-repeat,
+    linear-gradient(var(--brand-red), var(--brand-red)) 4% 100% / 92% 35% no-repeat;
+  transform: rotate(-1deg);
+}
+
 /* ---------- Tekst ---------- */
 .ui-title {
-  font-family: var(--font-heading);
+  font-family: var(--font-display);
   font-size: var(--text-2xl);
   font-weight: var(--weight-bold);
   text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: var(--color-text);
+  letter-spacing: var(--letter-spacing-caps);
+  color: var(--brand-red);
+  line-height: 1;
 }
 .ui-subtitle {
-  font-family: var(--font-heading);
+  font-family: var(--font-display);
   font-size: var(--text-lg);
-  font-weight: var(--weight-bold);
+  font-weight: var(--weight-normal);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-caps);
 }
 .ui-eyebrow {
-  font-family: var(--font-heading);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
+  font-family: var(--font-display);
+  font-size: var(--text-md);
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-caps);
   color: var(--color-text-muted);
@@ -108,154 +167,152 @@ p {
 .ui-muted { color: var(--color-text-muted); }
 .ui-small { font-size: var(--text-sm); }
 .ui-big-number {
-  font-family: var(--font-heading);
+  font-family: var(--font-display);
   font-size: var(--text-3xl);
   font-weight: var(--weight-bold);
   font-variant-numeric: tabular-nums;
-  color: var(--color-header);
+  color: var(--brand-red);
 }
 
-/* Kopje met ruitjes: ◆ KIES HET ECHTE ANTWOORD ◆ */
+/* Kopje met sterretjes: ✱ WELK ANTWOORD IS ECHT? ✱ */
 .ui-pick-label {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  font-family: var(--font-heading);
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
   font-weight: var(--weight-bold);
-  font-size: var(--text-sm);
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-caps);
-  color: var(--color-header);
+  color: var(--brand-red);
   text-align: center;
+  line-height: 1;
 }
-.ui-pick-label::before,
-.ui-pick-label::after {
-  content: '';
-  width: 7px;
-  height: 7px;
-  flex: none;
-  background: var(--color-accent);
-  transform: rotate(45deg);
+.ui-pick-label::before {
+  content: '✱';
+  color: var(--brand-red);
 }
 
 /* ---------- Vraagband ---------- */
 .ui-qhead {
   margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-4)) 0;
-  padding: var(--space-3) var(--space-5) calc(var(--space-5) + var(--band-tip));
+  padding: var(--space-5) var(--space-5) var(--space-4);
   background: var(--color-header);
   color: var(--color-header-text);
   text-align: center;
-  clip-path: polygon(
-    0 0, 100% 0, 100% calc(100% - var(--band-tip)),
-    calc(50% + var(--band-tip)) calc(100% - var(--band-tip)), 50% 100%,
-    calc(50% - var(--band-tip)) calc(100% - var(--band-tip)), 0 calc(100% - var(--band-tip))
-  );
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  position: relative;
 }
 .ui-qhead__cat {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
-  font-family: var(--font-heading);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-bold);
-  letter-spacing: var(--letter-spacing-caps);
-  text-transform: uppercase;
-  padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--color-header-accent);
+  font-family: var(--font-script);
+  font-weight: 700;
+  font-size: var(--text-xl);
+  line-height: 1;
+  color: var(--brand-white);
+  transform: rotate(-3deg);
 }
-.ui-qhead__cat::before,
-.ui-qhead__cat::after {
-  content: '';
-  width: 6px;
-  height: 6px;
-  background: var(--color-header-accent);
-  transform: rotate(45deg);
+.ui-qhead__cat::before {
+  content: '✱ ';
 }
 .ui-qhead__text {
   font-family: var(--font-body);
-  font-weight: var(--weight-semibold);
-  font-size: var(--text-lg);
-  line-height: 1.3;
+  font-weight: 700;
+  font-size: var(--text-xl);
+  line-height: 1.25;
 }
 .ui-qhead--large .ui-qhead__text { font-size: var(--text-2xl); }
 .ui-qhead__count {
-  font-size: var(--text-xs);
-  opacity: 0.75;
+  font-family: var(--font-display);
+  font-size: var(--text-md);
   text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-caps);
+  letter-spacing: 0.1em;
+  opacity: 0.85;
+}
+.ui-qhead .ui-xxx {
+  font-size: var(--text-lg);
+  color: var(--brand-white);
 }
 
-/* Kopbalk (bijv. "TUSSENSTAND") */
+/* Kopbalk (bijv. "✱ TUSSENSTAND") */
 .ui-bar {
   margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-4)) 0;
-  padding: var(--space-4) var(--space-5);
-  background: var(--color-primary);
-  color: var(--color-header-text);
-  font-family: var(--font-heading);
-  font-size: var(--text-lg);
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  background: var(--brand-sky);
+  color: var(--brand-white);
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
   font-weight: var(--weight-bold);
-  text-align: center;
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-caps);
+  line-height: 1;
 }
+.ui-bar::before {
+  content: '✱ ';
+  color: var(--brand-red);
+}
+.ui-bar--red { background: var(--brand-red); }
+.ui-bar--red::before { color: var(--brand-white); }
+.ui-bar--olive { background: var(--brand-olive); }
+.ui-bar--mustard { background: var(--brand-mustard); }
 
 /* ---------- Card ---------- */
 .ui-card {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
+  border: 3px solid var(--brand-maroon);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop);
   padding: var(--space-5);
 }
 .ui-card--muted {
   background: var(--color-surface-muted);
+  border-color: var(--color-border);
   box-shadow: none;
 }
 
-/* Kaart met dubbele rand (antwoord invoeren) */
+/* Kaart om je antwoord in te typen */
 .ui-frame {
   position: relative;
-  border: 3px solid var(--color-primary);
-  outline: 2px solid var(--color-primary);
-  outline-offset: -9px;
+  border: 3px solid var(--brand-maroon);
   background: var(--color-surface);
+  box-shadow: 6px 6px 0 var(--brand-red);
   padding: var(--space-6) var(--space-5) calc(var(--space-6) + var(--space-3));
   margin-bottom: calc(var(--button-height) / 2);
+  transform: rotate(-0.8deg);
 }
-.ui-frame:focus-within { box-shadow: var(--focus-ring); }
+.ui-frame:focus-within { box-shadow: 6px 6px 0 var(--brand-mustard); }
 .ui-frame__count {
   position: absolute;
   right: var(--space-4);
-  top: var(--space-3);
-  font-size: var(--text-xs);
+  top: var(--space-2);
+  font-family: var(--font-script);
+  font-size: var(--text-lg);
   color: var(--color-text-muted);
 }
 .ui-frame__submit {
   position: absolute;
   left: 50%;
   bottom: 0;
-  transform: translate(-50%, 50%);
+  transform: translate(-50%, 50%) rotate(0.8deg);
   width: min(88%, 340px);
 }
 
 /* ---------- Knoppen ---------- */
 .ui-button {
   appearance: none;
-  border: 0;
+  border: 3px solid var(--brand-maroon);
   min-height: var(--button-height);
-  padding: var(--space-3) calc(var(--space-5) + var(--ribbon-tip));
-  font-family: var(--font-heading);
-  font-size: var(--text-lg);
+  padding: var(--space-3) var(--space-5);
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
   font-weight: var(--weight-bold);
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-caps);
+  line-height: 1;
   cursor: pointer;
-  transition: background var(--transition), opacity var(--transition), transform var(--transition);
+  transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -263,39 +320,39 @@ p {
   text-align: center;
   text-decoration: none;
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop);
 }
-.ui-button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-.ui-button:not(:disabled):active { transform: translateY(2px); }
-.ui-button:disabled { cursor: not-allowed; opacity: 0.5; }
+.ui-button:focus-visible { outline: none; box-shadow: var(--shadow-pop), var(--focus-ring); }
+.ui-button:not(:disabled):hover { transform: translate(-2px, -2px) rotate(-0.5deg); box-shadow: 6px 6px 0 var(--brand-maroon); }
+.ui-button:not(:disabled):active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--brand-maroon); }
+.ui-button:disabled { cursor: not-allowed; opacity: 0.45; }
 .ui-button--block { width: 100%; }
 
-/* Hoofdknop: lintvorm met punten aan beide kanten */
 .ui-button--primary {
   background: var(--color-primary);
   color: var(--color-primary-contrast);
-  border-radius: 0;
-  clip-path: polygon(
-    var(--ribbon-tip) 0, calc(100% - var(--ribbon-tip)) 0, 100% 50%,
-    calc(100% - var(--ribbon-tip)) 100%, var(--ribbon-tip) 100%, 0 50%
-  );
 }
-.ui-button--primary:not(:disabled):hover { background: var(--color-primary-hover); }
-.ui-button--primary:focus-visible { box-shadow: none; background: var(--color-primary-dark); }
 .ui-button--secondary {
   background: var(--color-secondary);
   color: var(--color-secondary-contrast);
 }
-.ui-button--secondary:not(:disabled):hover { background: var(--color-secondary-hover); }
 .ui-button--ghost {
   background: transparent;
-  color: var(--color-header);
-  box-shadow: inset 0 0 0 2px var(--color-border);
+  color: var(--brand-maroon);
+  box-shadow: none;
+}
+.ui-button--ghost:not(:disabled):hover { box-shadow: 3px 3px 0 var(--brand-maroon); }
+.ui-button--light {
+  background: var(--brand-cream);
+  color: var(--brand-red);
 }
 .ui-button--danger { background: var(--color-danger); color: var(--color-danger-contrast); }
 .ui-button--small {
   min-height: 36px;
   padding: var(--space-1) var(--space-3);
-  font-size: var(--text-sm);
+  font-size: var(--text-md);
+  border-width: 2px;
+  box-shadow: 2px 2px 0 var(--brand-maroon);
 }
 
 /* ---------- Formulieren ---------- */
@@ -305,52 +362,53 @@ p {
   gap: var(--space-2);
 }
 .ui-label {
-  font-family: var(--font-heading);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-caps);
-  color: var(--color-header);
+  color: var(--brand-red);
 }
 .ui-input,
 .ui-textarea {
   width: 100%;
   min-height: var(--input-height);
   padding: var(--space-3) var(--space-4);
-  border: 2px solid var(--color-border);
+  border: 3px solid var(--brand-maroon);
   border-radius: var(--radius-md);
   background: var(--color-surface);
-  color: var(--color-text);
+  color: var(--brand-ink);
   font: inherit;
   font-size: max(16px, var(--text-md)); /* voorkomt inzoomen op iOS */
 }
 .ui-textarea { resize: vertical; min-height: 88px; }
 .ui-input:focus,
-.ui-textarea:focus { outline: none; border-color: var(--color-primary); box-shadow: var(--focus-ring); }
+.ui-textarea:focus { outline: none; box-shadow: var(--focus-ring); }
 .ui-input--code {
   text-transform: uppercase;
   letter-spacing: 0.3em;
-  font-family: var(--font-heading);
+  font-family: var(--font-display);
   font-weight: var(--weight-bold);
   font-size: var(--text-2xl);
   text-align: center;
+  color: var(--brand-red);
 }
 .ui-hint { font-size: var(--text-xs); color: var(--color-text-muted); }
 
-/* Groot antwoordveld in de dubbele kaart */
+/* Groot antwoordveld in de kaart */
 .ui-answer-input {
   display: block;
   width: 100%;
   border: 0;
   background: transparent;
   text-align: center;
-  font-family: var(--font-heading);
-  font-weight: var(--weight-bold);
-  font-size: max(16px, var(--text-xl));
-  line-height: 1.15;
-  color: var(--color-text);
+  font-family: var(--font-display);
+  font-weight: var(--weight-normal);
+  font-size: max(16px, var(--text-2xl));
+  text-transform: uppercase;
+  line-height: 1.05;
+  color: var(--brand-maroon);
   resize: none;
-  min-height: 2.4em;
+  min-height: 2.2em;
   padding: 0;
 }
 .ui-answer-input::placeholder { color: var(--color-disabled-text); }
@@ -361,21 +419,30 @@ p {
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-4);
   font-size: var(--text-sm);
+  border: 2px solid transparent;
 }
-.ui-alert--error { background: var(--color-error-bg); color: var(--color-error); }
-.ui-alert--success { background: var(--color-success-bg); color: var(--color-success); font-weight: var(--weight-semibold); }
+.ui-alert--error { background: var(--color-error-bg); color: var(--color-error); border-color: var(--brand-red); font-weight: 700; }
+.ui-alert--success {
+  background: var(--brand-olive);
+  color: var(--brand-white);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: var(--letter-spacing-caps);
+}
 .ui-alert--info { background: var(--color-info-bg); color: var(--color-text); }
 
 .ui-banner {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--color-error-bg);
-  color: var(--color-error);
+  background: var(--brand-maroon);
+  color: var(--brand-white);
   text-align: center;
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
+  font-weight: 700;
 }
 
 /* ---------- Roomcode ---------- */
@@ -383,29 +450,30 @@ p {
   text-align: center;
 }
 .ui-roomcode__code {
-  font-family: var(--font-heading);
+  font-family: var(--font-display);
   font-size: var(--text-code);
   font-weight: var(--weight-bold);
-  letter-spacing: 0.15em;
-  line-height: 1.05;
-  color: var(--color-header);
+  letter-spacing: 0.12em;
+  line-height: 1;
+  color: var(--brand-red);
 }
 
 /* ---------- Avatars ---------- */
 .ui-avatar {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-heading);
+  font-family: var(--font-display);
   font-weight: var(--weight-bold);
   font-size: var(--text-lg);
-  color: #fff;
+  color: var(--brand-white);
   background: var(--avatar-5);
-  box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 3px var(--color-border);
+  border: 3px solid var(--brand-white);
+  box-shadow: 0 0 0 2px var(--brand-maroon);
   text-transform: uppercase;
 }
 .ui-avatar--1 { background: var(--avatar-1); }
@@ -414,8 +482,8 @@ p {
 .ui-avatar--4 { background: var(--avatar-4); }
 .ui-avatar--5 { background: var(--avatar-5); }
 .ui-avatar--6 { background: var(--avatar-6); }
-.ui-avatar--sm { width: 28px; height: 28px; font-size: var(--text-sm); }
-.ui-avatar--lg { width: 88px; height: 88px; font-size: var(--text-3xl); }
+.ui-avatar--sm { width: 30px; height: 30px; font-size: var(--text-sm); border-width: 2px; }
+.ui-avatar--lg { width: 96px; height: 96px; font-size: var(--text-3xl); border-width: 4px; }
 
 /* ---------- Lijsten ---------- */
 .ui-list {
@@ -435,13 +503,15 @@ p {
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
-  background: var(--color-surface-muted);
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
   border-radius: var(--radius-md);
-  min-height: 48px;
+  min-height: 50px;
   overflow-wrap: anywhere;
+  font-weight: 700;
 }
-.ui-list__item--done { color: var(--color-text); font-weight: var(--weight-semibold); }
-.ui-list__item--todo { color: var(--color-text-muted); }
+.ui-list__item--done { border-color: var(--brand-olive); }
+.ui-list__item--todo { color: var(--color-text-muted); font-weight: 400; border-style: dashed; }
 .ui-list__grow { flex: 1; }
 
 .ui-dot {
@@ -453,7 +523,7 @@ p {
 }
 .ui-dot--online { background: var(--color-online); }
 
-.ui-check { width: 1.25em; text-align: center; flex: none; font-weight: var(--weight-bold); color: var(--color-success); }
+.ui-check { width: 1.25em; text-align: center; flex: none; font-weight: 900; color: var(--brand-olive); }
 .ui-list__item--todo .ui-check { color: var(--color-disabled-text); }
 
 /* ---------- Klassement ---------- */
@@ -461,42 +531,48 @@ p {
   list-style: none;
   margin: 0;
   padding: 0;
-  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 .ui-standings__item {
   display: grid;
   grid-template-columns: auto 1fr auto 4.5rem;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-3) 0 var(--space-3) var(--space-2);
-  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-2) 0 var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
 }
-.ui-standings__item--me { background: var(--color-info-bg); }
-.ui-standings__name { font-weight: var(--weight-semibold); font-size: var(--text-lg); overflow-wrap: anywhere; }
+.ui-standings__item--me { border-color: var(--brand-red); box-shadow: 3px 3px 0 var(--brand-red); }
+.ui-standings__name { font-weight: 700; font-size: var(--text-lg); overflow-wrap: anywhere; }
 .ui-standings__delta {
-  font-family: var(--font-heading);
-  font-size: var(--text-xl);
-  font-weight: var(--weight-bold);
-  color: var(--color-accent);
-  font-variant-numeric: tabular-nums;
+  font-family: var(--font-script);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--brand-red);
+  line-height: 1;
 }
 .ui-standings__score {
-  font-family: var(--font-heading);
+  font-family: var(--font-display);
   font-size: var(--text-3xl);
   font-weight: var(--weight-bold);
   line-height: 1;
   text-align: center;
-  border-left: 2px solid var(--color-border);
+  color: var(--brand-red);
+  border-left: 2px dashed var(--color-border);
   font-variant-numeric: tabular-nums;
 }
 
 .ui-score-title {
-  font-family: var(--font-heading);
+  font-family: var(--font-display);
   font-size: var(--text-2xl);
   font-weight: var(--weight-bold);
   text-transform: uppercase;
   text-align: center;
-  line-height: 1.1;
+  line-height: 1.05;
+  color: var(--brand-maroon);
   overflow-wrap: anywhere;
 }
 
@@ -505,29 +581,56 @@ p {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 .ui-winner__name {
-  font-family: var(--font-heading);
+  font-family: var(--font-display);
   font-size: var(--text-3xl);
   font-weight: var(--weight-bold);
   text-transform: uppercase;
-  line-height: 1.05;
+  line-height: 1;
   overflow-wrap: anywhere;
 }
 
-/* ---------- Antwoordlinten (stemmen) ---------- */
+/* Eindstand: olijfgroen quotevlak */
+.ui-quote-screen {
+  margin: 0 calc(-1 * var(--space-4));
+  padding: var(--space-7) var(--space-5);
+  background: var(--brand-olive);
+  color: var(--brand-white);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+.ui-quote-screen__line {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-2xl);
+  text-transform: uppercase;
+  line-height: 1.05;
+}
+.ui-quote-screen__line::before { content: '“'; color: var(--brand-red); }
+.ui-quote-screen__line::after { content: '”'; color: var(--brand-red); }
+.ui-screen--wide .ui-quote-screen { margin: 0; }
+
+/* ---------- Antwoordkaarten (stemmen) ---------- */
 .ui-option {
   appearance: none;
   width: 100%;
-  border: 0;
-  font-family: var(--font-heading);
-  font-size: var(--text-lg);
-  font-weight: var(--weight-bold);
-  color: var(--color-primary-contrast);
-  background: var(--color-primary);
-  padding: var(--space-3) calc(var(--space-4) + var(--ribbon-tip));
-  min-height: 60px;
+  border: 3px solid var(--brand-maroon);
+  border-radius: var(--radius-md);
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-normal);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--brand-maroon);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-pop);
+  padding: var(--space-3) var(--space-4);
+  min-height: 64px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -535,134 +638,179 @@ p {
   justify-content: center;
   gap: 2px;
   text-align: center;
-  line-height: 1.15;
+  line-height: 1.05;
   overflow-wrap: anywhere;
-  clip-path: polygon(
-    var(--ribbon-tip) 0, calc(100% - var(--ribbon-tip)) 0, 100% 50%,
-    calc(100% - var(--ribbon-tip)) 100%, var(--ribbon-tip) 100%, 0 50%
-  );
-  transition: background var(--transition), transform var(--transition);
+  transform: rotate(calc(var(--tilt) * -1));
+  transition: transform var(--transition), background var(--transition), color var(--transition), box-shadow var(--transition);
 }
-.ui-option:not(:disabled):hover { background: var(--color-primary-hover); }
-.ui-option:focus-visible { outline: none; background: var(--color-primary-dark); }
-.ui-option:not(:disabled):active { transform: scale(0.98); }
+.ui-option:nth-child(even) { transform: rotate(var(--tilt)); }
+.ui-option:not(:disabled):not(.ui-option--static):hover {
+  background: var(--brand-red);
+  color: var(--brand-white);
+  transform: rotate(0deg) scale(1.02);
+}
+.ui-option:focus-visible { outline: none; box-shadow: var(--shadow-pop), var(--focus-ring); }
 .ui-option:disabled { cursor: default; }
 .ui-option--own {
   background: var(--color-disabled-bg);
   color: var(--color-disabled-text);
+  border-style: dashed;
+  border-color: var(--color-disabled-text);
+  box-shadow: none;
 }
 .ui-option--selected,
 .ui-option--selected:disabled,
 .ui-option--selected:not(:disabled):hover {
-  background: var(--color-header-dark);
-  color: var(--color-header-accent);
+  background: var(--brand-mustard);
+  color: var(--brand-white);
+  transform: rotate(0deg) scale(1.03);
 }
 .ui-option--static { cursor: default; }
 .ui-option__note {
-  font-family: var(--font-body);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-caps);
+  font-family: var(--font-script);
+  font-size: var(--text-lg);
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 /* ---------- Onthulling ---------- */
 .ui-reveal {
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  position: relative;
+  border: 3px solid var(--brand-maroon);
+  border-radius: var(--radius-md);
   background: var(--color-surface);
-  padding: 0 var(--space-4) var(--space-4);
+  box-shadow: var(--shadow-pop);
+  padding: var(--space-4) var(--space-4);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  overflow: hidden;
 }
 .ui-reveal__answer {
-  margin: 0 calc(-1 * var(--space-4)) var(--space-1);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-primary);
-  color: var(--color-primary-contrast);
-  font-family: var(--font-heading);
-  font-size: var(--text-xl);
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
   font-weight: var(--weight-bold);
-  text-align: center;
-  line-height: 1.15;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--brand-red);
   overflow-wrap: anywhere;
 }
 .ui-reveal--correct {
-  border-color: var(--color-correct);
-  background: var(--color-correct-bg);
+  background: var(--brand-olive);
+  border-color: var(--brand-olive);
+  color: var(--brand-white);
+  box-shadow: 6px 6px 0 var(--brand-maroon);
 }
-.ui-reveal--correct .ui-reveal__answer { background: var(--color-correct); }
+.ui-reveal--correct .ui-reveal__answer { color: var(--brand-white); font-size: var(--text-3xl); }
 .ui-reveal__badge {
-  font-family: var(--font-heading);
-  font-weight: var(--weight-bold);
-  color: var(--color-correct);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-caps);
-  text-align: center;
-}
-.ui-reveal__points {
-  font-family: var(--font-heading);
+  align-self: flex-start;
+  font-family: var(--font-display);
   font-weight: var(--weight-bold);
   font-size: var(--text-lg);
-  color: var(--color-primary);
+  background: var(--brand-red);
+  color: var(--brand-white);
+  padding: 2px var(--space-3);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-caps);
+  transform: rotate(-3deg);
+  border: 2px solid var(--brand-white);
 }
-.ui-reveal--correct .ui-reveal__points { color: var(--color-correct); }
+.ui-reveal__points {
+  font-family: var(--font-script);
+  font-weight: 700;
+  font-size: var(--text-xl);
+  line-height: 1.1;
+  color: var(--brand-red);
+}
+.ui-reveal--correct .ui-reveal__points { color: var(--brand-white); }
+.ui-reveal--correct .ui-muted { color: var(--brand-white); opacity: 0.85; }
+
+/* Persoonlijke uitslag van de ronde */
+.ui-personal {
+  background: var(--brand-mustard);
+  color: var(--brand-white);
+  border: 3px solid var(--brand-maroon);
+  box-shadow: var(--shadow-pop);
+  padding: var(--space-4);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  transform: rotate(-1deg);
+}
+.ui-personal__title {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-2xl);
+  text-transform: uppercase;
+  line-height: 1;
+}
+.ui-personal__text { font-family: var(--font-script); font-size: var(--text-xl); line-height: 1.1; }
+.ui-personal--meh { background: var(--brand-sky); }
 
 .ui-tag {
   display: inline-block;
   padding: 2px var(--space-3);
-  border-radius: var(--radius-pill);
-  background: var(--color-secondary);
-  color: var(--color-header);
-  font-family: var(--font-heading);
-  font-weight: var(--weight-bold);
-  letter-spacing: 0.05em;
-  font-size: var(--text-sm);
+  border: 2px solid var(--brand-maroon);
+  border-radius: var(--radius-md);
+  background: var(--brand-white);
+  color: var(--brand-red);
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+  font-size: var(--text-md);
 }
 
 .ui-spinner {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  border: 3px solid var(--color-border);
-  border-top-color: var(--color-primary);
+  border: 4px solid var(--color-border);
+  border-top-color: var(--brand-red);
   animation: ui-spin 0.9s linear infinite;
   margin: 0 auto;
 }
-@keyframes ui-spin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) {
-  .ui-spinner { animation-duration: 3s; }
-}
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+/* ---------- Startscherm ---------- */
+.ui-hero {
+  margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-4)) 0;
+  padding: var(--space-7) var(--space-5) var(--space-6);
+  background: var(--brand-red);
+  color: var(--brand-white);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 52dvh;
+  justify-content: center;
 }
-
-/* Op het hostscherm staan vraagband en kopbalk niet tegen de rand aan. */
-.ui-qhead--large,
-.ui-bar--inline {
-  margin: 0;
+.ui-hero__logo {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  font-size: min(17vw, 6.2rem);
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.15em;
 }
+.ui-hero__logo .ui-star { color: var(--brand-white); width: 0.55em; height: 0.55em; }
+.ui-hero__tag {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  text-transform: uppercase;
+  line-height: 1;
+}
+.ui-hero__tag .ui-script { font-size: 1.3em; text-transform: none; margin-right: 0.15em; }
+.ui-hero__intro { font-size: var(--text-md); max-width: 30em; }
+.ui-hero .ui-xxx { justify-content: flex-start; font-size: var(--text-xl); opacity: 0.9; }
 
 /* ---------- QR-code (lobby host) ---------- */
 .ui-qr {
   width: min(240px, 60vw);
   aspect-ratio: 1;
-  background: var(--color-surface);
+  background: var(--brand-white);
   padding: var(--space-2);
-  border: 3px solid var(--color-primary);
-  outline: 2px solid var(--color-primary);
-  outline-offset: -8px;
+  border: 3px solid var(--brand-maroon);
+  box-shadow: 6px 6px 0 var(--brand-red);
+  transform: rotate(-2deg);
   flex: none;
 }
 .ui-qr svg {
@@ -683,4 +831,108 @@ p {
   gap: var(--space-3);
   align-items: center;
   text-align: center;
+}
+
+/* Op het hostscherm staan vraagband en kopbalk niet tegen de rand aan. */
+.ui-qhead--large,
+.ui-bar--inline {
+  margin: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =================================================================
+ * ANIMATIES
+ * ================================================================= */
+@keyframes ui-spin { to { transform: rotate(360deg); } }
+
+@keyframes ui-pop {
+  0% { opacity: 0; transform: scale(0.85) rotate(-2deg); }
+  70% { opacity: 1; transform: scale(1.03) rotate(0.5deg); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes ui-slide-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ui-drop {
+  from { opacity: 0; transform: translateY(-24px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ui-stamp {
+  0% { opacity: 0; transform: scale(1.8) rotate(-8deg); }
+  60% { opacity: 1; transform: scale(0.95) rotate(1deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+@keyframes ui-wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-12deg); }
+  75% { transform: rotate(12deg); }
+}
+@keyframes ui-twirl {
+  to { transform: rotate(360deg); }
+}
+@keyframes ui-shake {
+  0%, 100% { transform: translateX(0) rotate(-0.8deg); }
+  20%, 60% { transform: translateX(-8px) rotate(-0.8deg); }
+  40%, 80% { transform: translateX(8px) rotate(-0.8deg); }
+}
+@keyframes ui-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes ui-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+/* Nieuwe fase: inhoud schuift in beeld */
+.ui-enter > * { animation: ui-slide-up 420ms cubic-bezier(.2,.8,.2,1) both; }
+.ui-enter > *:nth-child(2) { animation-delay: 80ms; }
+.ui-enter > *:nth-child(3) { animation-delay: 160ms; }
+.ui-enter > *:nth-child(4) { animation-delay: 240ms; }
+.ui-enter > *:nth-child(5) { animation-delay: 320ms; }
+.ui-enter > *:nth-child(n+6) { animation-delay: 400ms; }
+
+.ui-qhead, .ui-bar, .ui-hero { animation: ui-drop 450ms cubic-bezier(.2,.8,.2,1) both; }
+
+/* Elementen die één voor één binnenkomen (gebruik style="--i: n") */
+.ui-stagger > * {
+  animation: ui-pop 480ms cubic-bezier(.2,.8,.2,1) both;
+  animation-delay: calc(var(--i, 0) * 110ms);
+}
+/* Bewaar de kanteling van antwoordkaarten na de animatie */
+.ui-option { animation-fill-mode: backwards !important; }
+
+.ui-reveal--correct { animation: ui-stamp 600ms cubic-bezier(.2,.8,.2,1) both; }
+.ui-reveal__badge { animation: ui-wiggle 700ms ease 500ms both; }
+.ui-personal { animation: ui-stamp 600ms cubic-bezier(.2,.8,.2,1) both; }
+.ui-standings__delta { animation: ui-pop 500ms ease both; animation-delay: calc(var(--i, 0) * 110ms + 300ms); }
+.ui-star { animation: ui-twirl 6s linear infinite; }
+.ui-hero__logo .ui-star { animation-duration: 10s; }
+.ui-pick-label::before { display: inline-block; animation: ui-wiggle 2.4s ease-in-out infinite; }
+.ui-shake { animation: ui-shake 420ms ease both; }
+.ui-roomcode__code { animation: ui-pulse 2.8s ease-in-out infinite; }
+.ui-avatar--lg { animation: ui-bounce 1.8s ease-in-out infinite; }
+.ui-xxx > span { display: inline-block; animation: ui-bounce 1.6s ease-in-out infinite; }
+.ui-xxx > span:nth-child(2) { animation-delay: 0.2s; }
+.ui-xxx > span:nth-child(3) { animation-delay: 0.4s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
 }

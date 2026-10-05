@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useId, useState, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { Alert, Avatar, Button, Card, Eyebrow, PlayerList, Stack, Standings, Waiting, points } from '@/components/ui';
-import { FinalStandings, QuestionHeader, RevealView, RoundPoints, leaderTitle, quoted } from '@/components/game/shared';
+import { FinalStandings, QuestionHeader, RevealView, RoundPoints, leaderTitle, order, quoted } from '@/components/game/shared';
+import { burst, celebrate } from '@/lib/client/confetti';
 import { GameFrame } from '@/components/game/Frame';
 import { api, ClientError } from '@/lib/client/api';
 import { clearSession, type StoredSession } from '@/lib/client/session';
@@ -31,7 +32,14 @@ export function PlayerGame({ code }: { code: string }) {
 
   return (
     <GameFrame state={state} offline={offline} noSession={noSession}>
-      {state.kind === 'ready' && session && <PlayerPhase view={state.view} session={session} refresh={refresh} />}
+      {state.kind === 'ready' && session && (
+        <PlayerPhase
+          key={`${state.view.status}-${state.view.question?.number ?? 0}`}
+          view={state.view}
+          session={session}
+          refresh={refresh}
+        />
+      )}
     </GameFrame>
   );
 }
@@ -43,12 +51,15 @@ function PlayerPhase({ view, session, refresh }: { view: GameView; session: Stor
   switch (view.status) {
     case 'LOBBY':
       return (
-        <Stack gap="lg">
-          <h1 className="ui-bar">Je doet mee!</h1>
+        <Stack gap="lg" className="ui-enter">
+          <h1 className="ui-bar ui-bar--red">Je doet mee!</h1>
           <div className="ui-winner">
             {view.me && <Avatar name={view.me.name} size="lg" />}
             <p className="ui-winner__name">{view.me?.name}</p>
-            <p className="ui-muted">Wachten tot de host het spel start...</p>
+            <p>Wachten tot de host het spel start...</p>
+            <p className="ui-script ui-muted" style={{ fontSize: 'var(--text-lg)' }}>
+              Ga d&apos;r lekker bij zitten.
+            </p>
           </div>
           <Stack gap="sm">
             <Eyebrow>
@@ -61,7 +72,7 @@ function PlayerPhase({ view, session, refresh }: { view: GameView; session: Stor
 
     case 'SUBMITTING_ANSWERS':
       return (
-        <Stack gap="lg">
+        <Stack gap="lg" className="ui-enter">
           {view.question && <QuestionHeader question={view.question} />}
           {view.myAnswer ? (
             <Stack>
@@ -83,7 +94,7 @@ function PlayerPhase({ view, session, refresh }: { view: GameView; session: Stor
 
     case 'VOTING':
       return (
-        <Stack gap="lg">
+        <Stack gap="lg" className="ui-enter">
           {view.question && <QuestionHeader question={view.question} />}
           <VoteForm key={view.question?.number} view={view} session={session} refresh={refresh} />
         </Stack>
@@ -92,13 +103,9 @@ function PlayerPhase({ view, session, refresh }: { view: GameView; session: Stor
     case 'REVEAL': {
       const mine = view.reveal?.roundPoints.find((p) => p.id === meId);
       return (
-        <Stack gap="lg">
+        <Stack gap="lg" className="ui-enter">
           {view.question && <QuestionHeader question={view.question} />}
-          {mine && (
-            <Card muted>
-              <p className="ui-subtitle ui-center">Jij verdient deze ronde +{points(mine.points)}</p>
-            </Card>
-          )}
+          {mine && view.reveal && <PersonalResult reveal={view.reveal} meId={mine.id} points={mine.points} />}
           {view.reveal && <RevealView reveal={view.reveal} meId={meId} />}
           {view.reveal && <RoundPoints reveal={view.reveal} standings={view.standings ?? []} meId={meId} />}
         </Stack>
@@ -107,22 +114,23 @@ function PlayerPhase({ view, session, refresh }: { view: GameView; session: Stor
 
     case 'SCOREBOARD':
       return (
-        <Stack gap="lg">
+        <Stack gap="lg" className="ui-enter">
           <h1 className="ui-bar">Tussenstand</h1>
           <p className="ui-score-title">{leaderTitle(view.standings ?? [])}</p>
           <Standings standings={view.standings ?? []} meId={meId} deltas={view.lastRound} />
-          <p className="ui-muted ui-center">Wachten op de host...</p>
+          <p className="ui-muted ui-center">Effe wachten op de host...</p>
         </Stack>
       );
 
     case 'FINISHED':
       return (
-        <Stack gap="lg">
-          <h1 className="ui-title ui-center">Eindstand</h1>
+        <Stack gap="lg" className="ui-enter">
+          <h1 className="ui-bar ui-bar--red">Eindstand</h1>
+          <Celebration winner={view.standings?.some((s) => s.rank === 1 && s.id === meId) ?? false} />
           <FinalStandings standings={view.standings ?? []} meId={meId} />
           <Card muted>
             <Stack gap="sm">
-              <p className="ui-center">Bedankt voor het spelen!</p>
+              <p className="ui-center">Bedankt voor het spelen, toppers!</p>
               <p className="ui-muted ui-small ui-center">
                 Kiest de host voor opnieuw spelen, dan doe je automatisch weer mee.
               </p>
@@ -162,6 +170,40 @@ function PlayerPhase({ view, session, refresh }: { view: GameView; session: Stor
   }
 }
 
+/** Persoonlijke uitslag van de ronde, met confetti als je punten pakte. */
+function PersonalResult({ reveal, meId, points: pts }: { reveal: GameView['reveal'] & object; meId: string; points: number }) {
+  const guessedRight = reveal.options.some((o) => o.isCorrect && o.voters.some((v) => v.id === meId));
+  const fooled = reveal.options.find((o) => o.author?.id === meId)?.voters.length ?? 0;
+  useEffect(() => {
+    if (pts > 0) burst();
+  }, [pts]);
+
+  const maten = `${fooled} ${fooled === 1 ? 'maat' : 'maten'}`;
+  const title =
+    guessedRight && fooled > 0
+      ? 'Dubbel raak!'
+      : guessedRight
+        ? 'Goed gezien, kanjer!'
+        : fooled > 0
+          ? `${maten} erin geluisd!`
+          : 'Volgende keer beter, makker';
+  return (
+    <div className={`ui-personal${pts > 0 ? '' : ' ui-personal--meh'}`} role="status">
+      <p className="ui-personal__title">{title}</p>
+      <p className="ui-personal__text">Jij verdient deze ronde +{points(pts)}</p>
+    </div>
+  );
+}
+
+/** Confetti bij de eindstand; extra lang voor de winnaar. */
+function Celebration({ winner }: { winner: boolean }) {
+  useEffect(() => {
+    if (winner) celebrate(5000);
+    else burst();
+  }, [winner]);
+  return null;
+}
+
 function progressText(entries: GameView['answerProgress'], label: string) {
   if (!entries) return undefined;
   return `${entries.filter((e) => e.done).length} / ${entries.length} ${label}`;
@@ -169,13 +211,23 @@ function progressText(entries: GameView['answerProgress'], label: string) {
 
 function AnswerForm({ session, refresh }: { session: StoredSession; refresh: () => Promise<void> }) {
   const inputId = useId();
+  const frameRef = useRef<HTMLDivElement>(null);
+  /** Kaart even laten trillen bij een geweigerd antwoord. */
+  const shake = () =>
+    frameRef.current?.animate?.(
+      [0, -8, 8, -8, 8, 0].map((x) => ({ transform: `translateX(${x}px) rotate(-0.8deg)` })),
+      { duration: 420, easing: 'ease' },
+    );
   const [answer, setAnswer] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!answer.trim()) return setError('Vul een antwoord in.');
+    if (!answer.trim()) {
+      shake();
+      return setError('Vul een antwoord in.');
+    }
     setBusy(true);
     setError(null);
     try {
@@ -187,6 +239,7 @@ function AnswerForm({ session, refresh }: { session: StoredSession; refresh: () 
         await refresh();
       }
       setError(err instanceof ClientError ? err.message : 'Er ging iets mis. Probeer het opnieuw.');
+      shake();
     } finally {
       setBusy(false);
     }
@@ -196,8 +249,10 @@ function AnswerForm({ session, refresh }: { session: StoredSession; refresh: () 
     <form onSubmit={onSubmit} noValidate>
       <Stack>
         <p className="ui-pick-label">Verzin een geloofwaardig antwoord</p>
-        <p className="ui-muted ui-small ui-center">Laat de anderen erin trappen!</p>
-        <div className="ui-frame">
+        <p className="ui-script ui-muted ui-center" style={{ fontSize: 'var(--text-lg)' }}>
+          Neem ze lekker in de maling!
+        </p>
+        <div className="ui-frame" ref={frameRef}>
           <label htmlFor={inputId} className="sr-only">
             Jouw antwoord
           </label>
@@ -261,9 +316,14 @@ function VoteForm({ view, session, refresh }: { view: GameView; session: StoredS
   return (
     <Stack>
       <h2 className="ui-pick-label">Welk antwoord is echt?</h2>
+      {!voted && (
+        <p className="ui-script ui-muted ui-center" style={{ fontSize: 'var(--text-lg)' }}>
+          Trap er niet in, hè!
+        </p>
+      )}
       {voted && <Alert kind="success">Stem opgeslagen! Wachten op de rest...</Alert>}
-      <div className="ui-stack ui-stack--sm" role="radiogroup" aria-label="Antwoorden">
-        {view.options?.map((o) => {
+      <div className="ui-stack ui-stagger" role="radiogroup" aria-label="Antwoorden">
+        {view.options?.map((o, i) => {
           const isSelected = (voted ?? selected) === o.id;
           return (
             <button
@@ -271,6 +331,7 @@ function VoteForm({ view, session, refresh }: { view: GameView; session: StoredS
               type="button"
               role="radio"
               aria-checked={isSelected}
+              style={order(i)}
               disabled={!!voted || o.isOwn || busy}
               onClick={() => {
                 setSelected(o.id);

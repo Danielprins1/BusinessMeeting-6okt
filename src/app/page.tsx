@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Alert, Button, Card, Screen, Stack } from '@/components/ui';
+import { Alert, Button, Card, Screen, Stack, Star, Xxx } from '@/components/ui';
 import { APP_NAME } from '@/lib/constants';
 import { api, ClientError } from '@/lib/client/api';
 import { loadSession, saveSession, type StoredSession } from '@/lib/client/session';
@@ -31,46 +31,50 @@ export default function StartPage() {
 
   return (
     <Screen>
-      <Stack gap="lg">
-        <Stack gap="sm">
-          <h1 className="ui-title ui-center">{APP_NAME}</h1>
-          <p className="ui-muted ui-center">
-            Verzin een geloofwaardig nepantwoord, laat de anderen erin trappen en raad zelf welk antwoord echt is.
-          </p>
-        </Stack>
+      <header className="ui-hero">
+        <Xxx />
+        <h1 className="ui-hero__logo">
+          <Star />
+          {APP_NAME}
+        </h1>
+        <p className="ui-hero__tag">
+          <span className="ui-script">1950</span> tot nu
+        </p>
+        <p className="ui-hero__intro">
+          Verzin een nepantwoord, laat je maten erin trappen en raad wat er écht gebeurde in Mokum.
+        </p>
+      </header>
 
-        <Stack>
-          <Button block onClick={startGame} loading={busy}>
-            Spel starten
-          </Button>
-          <Link href="/meedoen" className="ui-button ui-button--secondary ui-button--block">
-            Meedoen
-          </Link>
-          {error && (
-            <Alert kind="error">
-              {error}{' '}
-              <Link href="/status">Controleer de instellingen</Link>
-            </Alert>
-          )}
-        </Stack>
-
-        {saved && (
-          <Card muted>
-            <Stack gap="sm">
-              <p className="ui-small">
-                Je zat nog in een spel ({saved.role === 'host' ? 'als host' : `als ${saved.name ?? 'speler'}`}, room{' '}
-                <strong>{saved.roomCode}</strong>).
-              </p>
-              <Link
-                href={saved.role === 'host' ? `/host/${saved.roomCode}` : `/spel/${saved.roomCode}`}
-                className="ui-button ui-button--ghost ui-button--block"
-              >
-                Terug naar het spel
-              </Link>
-            </Stack>
-          </Card>
+      <Stack>
+        <Button block onClick={startGame} loading={busy}>
+          Spel starten
+        </Button>
+        <Link href="/meedoen" className="ui-button ui-button--secondary ui-button--block">
+          Meedoen
+        </Link>
+        {error && (
+          <Alert kind="error">
+            {error} <Link href="/status">Controleer de instellingen</Link>
+          </Alert>
         )}
       </Stack>
+
+      {saved && (
+        <Card muted>
+          <Stack gap="sm">
+            <p className="ui-small">
+              Je zat nog in een spel ({saved.role === 'host' ? 'als host' : `als ${saved.name ?? 'speler'}`}, room{' '}
+              <strong>{saved.roomCode}</strong>).
+            </p>
+            <Link
+              href={saved.role === 'host' ? `/host/${saved.roomCode}` : `/spel/${saved.roomCode}`}
+              className="ui-button ui-button--ghost ui-button--block"
+            >
+              Terug naar het spel
+            </Link>
+          </Stack>
+        </Card>
+      )}
     </Screen>
   );
 }

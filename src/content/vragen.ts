@@ -3,7 +3,7 @@
  * ------------------------------------------------------------------
  * Pas hier de vragen en juiste antwoorden aan (minimaal 1, maximaal 5).
  * - categorie: klein kopje boven de vraag (zoals "DIEREN")
- * - vraag:     gebruik _____ voor het gat dat spelers invullen
+ * - vraag:     kort en simpel; spelers verzinnen een kort antwoord
  * - antwoord:  het echte antwoord; houd het kort, zodat het niet opvalt
  *              tussen de verzonnen antwoorden (max. 80 tekens)
  *
@@ -16,28 +16,28 @@
  */
 export const VRAGEN: { categorie: string; vraag: string; antwoord: string }[] = [
   {
-    categorie: 'Bewustzijnsverruiming',
-    vraag: 'Om voorgoed een hoger bewustzijn te bereiken, besloot een Amsterdamse medicijnstudent in 1965 om _____.',
-    antwoord: 'Met een tandartsboor een gat in zijn eigen schedel te boren',
+    categorie: 'Anno 1965',
+    vraag: 'Wat deed een Amsterdamse student in 1965 bij zichzelf om voorgoed high te blijven?',
+    antwoord: 'Een gat in zijn hoofd boren',
   },
   {
-    categorie: 'Koninklijk huwelijk',
-    vraag: 'Tijdens het huwelijk van Beatrix en Claus gooide iemand _____ naar de Gouden Koets.',
+    categorie: 'Anno 1966',
+    vraag: 'Wat gooide iemand naar de Gouden Koets bij de bruiloft van Beatrix en Claus?',
     antwoord: 'Een levende kip',
   },
   {
-    categorie: 'Krakersrellen',
-    vraag: 'In 1980 werden de krakers uit de Amsterdamse Vondelstraat verdreven met _____.',
+    categorie: 'Anno 1980',
+    vraag: 'Waarmee werden de krakers uit de Vondelstraat gehaald?',
     antwoord: 'Tanks',
   },
   {
-    categorie: 'Welkom in Amsterdam',
-    vraag: 'Om bezoekers bang te maken, hing Amsterdam vroeger bij de ingang van de stad expres _____ op.',
-    antwoord: 'De lijken van geëxecuteerde misdadigers',
+    categorie: 'Vroeger',
+    vraag: 'Wat hing Amsterdam bij de ingang van de stad om bezoekers bang te maken?',
+    antwoord: 'Lijken van misdadigers',
   },
   {
-    categorie: 'Dieren',
-    vraag: 'Zonder hoofd kan _____ nog maandenlang doorleven.',
+    categorie: 'Stadsdieren',
+    vraag: 'Welk beestje leeft gewoon door zonder kop?',
     antwoord: 'Een kakkerlak',
   },
 ];

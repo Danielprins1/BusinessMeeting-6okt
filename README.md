@@ -1,4 +1,4 @@
-# Nepantwoord – realtime multiplayer partyspel
+# BRANIE – het Amsterdamse bluffspel
 
 Spelers verzinnen bij een vraag een geloofwaardig nepantwoord en raden daarna welk antwoord echt is.
 1 host, 2 tot 30 spelers, maximaal 5 vaste vragen. Alles in het Nederlands, zonder accounts.
@@ -13,8 +13,9 @@ automatisch online. Ieder nieuw spel gebruikt dan de nieuwe vragen. De host hoef
 
 Dit bestand wordt alleen op de server gelezen, dus de antwoorden komen nooit in de browser terecht.
 
-> "Nepantwoord" is een werktitel (`APP_NAME` in `src/lib/constants.ts`). Het design (quizshow-stijl met
-> vraagband, antwoordlinten en scorelijst) staat volledig in `src/styles/tokens.css` en `components.css`.
+> Naam: `APP_NAME` in `src/lib/constants.ts`. Het design (Amsterdam van 1950 tot nu: Amsterdams rood, crème,
+> mosterd, lichtblauw en olijfgroen, handgetekende kapitalen, het rode ✱ en de XXX, animaties en confetti)
+> staat volledig in `src/styles/tokens.css` en `components.css`; de confetti in `src/lib/client/confetti.ts`.
 
 ---
 
