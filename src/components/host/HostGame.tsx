@@ -34,7 +34,7 @@ export function HostGame({ code }: { code: string }) {
     }
   }
 
-  async function backToStart() {
+  async function backToStart(target: '/' | '/nieuw' = '/') {
     if (session && state.kind === 'ready' && state.view.status !== 'CLOSED') {
       try {
         await api.host(session.roomCode, session.token, 'close');
@@ -43,7 +43,7 @@ export function HostGame({ code }: { code: string }) {
       }
     }
     clearSession();
-    router.push('/');
+    router.push(target);
   }
 
   function endGame() {
@@ -98,7 +98,7 @@ function HostPhase({
   view: GameView;
   busy: HostAction | null;
   run: (action: HostAction, extra?: Record<string, string>) => void;
-  backToStart: () => void;
+  backToStart: (target?: '/' | '/nieuw') => void;
 }) {
   const total = view.players.length;
 
@@ -204,14 +204,22 @@ function HostPhase({
         <Stack gap="lg">
           <h1 className="ui-title ui-center">Eindstand</h1>
           <FinalStandings standings={view.standings ?? []} />
-          <div className="ui-grid ui-grid--2">
-            <Button onClick={() => run('restart')} loading={busy === 'restart'}>
+          <Stack>
+            <Button block onClick={() => run('restart')} loading={busy === 'restart'}>
               Opnieuw spelen
             </Button>
-            <Button variant="secondary" onClick={backToStart}>
-              Terug naar start
-            </Button>
-          </div>
+            <p className="ui-muted ui-small ui-center">
+              Zelfde vragen en dezelfde spelers; de punten beginnen weer bij 0.
+            </p>
+            <div className="ui-grid ui-grid--2">
+              <Button variant="secondary" onClick={() => backToStart('/nieuw')}>
+                Nieuw spel
+              </Button>
+              <Button variant="ghost" onClick={() => backToStart('/')}>
+                Terug naar start
+              </Button>
+            </div>
+          </Stack>
         </Stack>
       );
 
@@ -220,7 +228,7 @@ function HostPhase({
         <Card>
           <Stack>
             <h1 className="ui-subtitle">Het spel is beëindigd.</h1>
-            <Button block onClick={backToStart}>
+            <Button block onClick={() => backToStart('/')}>
               Terug naar start
             </Button>
           </Stack>

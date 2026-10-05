@@ -121,7 +121,24 @@ function PlayerPhase({ view, session, refresh }: { view: GameView; session: Stor
         <Stack gap="lg">
           <h1 className="ui-title ui-center">Eindstand</h1>
           <FinalStandings standings={view.standings ?? []} meId={meId} />
-          <p className="ui-muted ui-center">Bedankt voor het spelen!</p>
+          <Card muted>
+            <Stack gap="sm">
+              <p className="ui-center">Bedankt voor het spelen!</p>
+              <p className="ui-muted ui-small ui-center">
+                Kiest de host voor opnieuw spelen, dan doe je automatisch weer mee.
+              </p>
+            </Stack>
+          </Card>
+          <Button
+            variant="ghost"
+            block
+            onClick={() => {
+              clearSession();
+              router.push('/');
+            }}
+          >
+            Terug naar start
+          </Button>
         </Stack>
       );
 

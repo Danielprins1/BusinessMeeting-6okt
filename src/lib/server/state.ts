@@ -210,10 +210,10 @@ async function buildReveal(questionId: string, players: PlayerRecord[]): Promise
     };
   });
 
-  // Volgorde van onthullen: eerst de nepantwoorden (minst gekozen eerst), het juiste antwoord als laatste.
+  // Volgorde van onthullen: eerst het echte antwoord, daarna de nepantwoorden (meest gekozen eerst).
   revealOptions.sort((a, b) => {
-    if (a.isCorrect !== b.isCorrect) return a.isCorrect ? 1 : -1;
-    return a.voters.length - b.voters.length;
+    if (a.isCorrect !== b.isCorrect) return a.isCorrect ? -1 : 1;
+    return b.voters.length - a.voters.length;
   });
 
   const pointsOf = new Map(scores.map((s) => [s.player_id, s.points]));
