@@ -1,7 +1,18 @@
 import 'server-only';
-import { db, serviceKey, supabaseUrl } from './supabase';
+import { db, publicKey, serviceKey, supabaseUrl } from './supabase';
 
 export type CheckResult = { label: string; ok: boolean; detail: string };
+
+/**
+ * Haalt alles wat op een key lijkt uit een foutmelding, zodat deze (openbare)
+ * pagina nooit een geheime key laat zien.
+ */
+function redact(message: string): string {
+  return message
+    .replace(/sb_(secret|publishable)_[^\s"']*(\s+[^\s"']+)*/g, '[key verborgen]')
+    .replace(/eyJ[A-Za-z0-9_\-.]+/g, '[key verborgen]')
+    .slice(0, 300);
+}
 
 /** Leest de rol uit een (legacy) Supabase-JWT, zonder iets te verifiëren of te tonen. */
 function jwtRole(key: string): string | null {
@@ -30,7 +41,8 @@ function keyKind(key: string): 'secret' | 'public' | 'unknown' {
 export async function diagnose(): Promise<CheckResult[]> {
   const results: CheckResult[] = [];
   const url = supabaseUrl();
-  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  const anon = publicKey();
+  const rawSecret = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
   const secret = serviceKey();
 
   // 1. Project-URL
@@ -81,7 +93,13 @@ export async function diagnose(): Promise<CheckResult[]> {
     });
     return results;
   }
-  results.push({ label: 'Service role / secret key', ok: true, detail: 'Ingevuld en van het juiste type.' });
+  results.push({
+    label: 'Service role / secret key',
+    ok: true,
+    detail: /\S\s+\S/.test(rawSecret.trim())
+      ? 'Ingevuld en van het juiste type. Let op: er stond een spatie of regeleinde in de key; die wordt automatisch genegeerd.'
+      : 'Ingevuld en van het juiste type.',
+  });
   if (!url) return results;
 
   // 4. Verbinding + tabellen
@@ -111,14 +129,14 @@ export async function diagnose(): Promise<CheckResult[]> {
       });
       return results;
     } else {
-      results.push({ label: 'Database-tabellen', ok: false, detail: `Onverwachte fout: ${error.code ?? ''} ${error.message}` });
+      results.push({ label: 'Database-tabellen', ok: false, detail: `Onverwachte fout: ${error.code ?? ''} ${redact(error.message)}` });
       return results;
     }
   } catch (err) {
     results.push({
       label: 'Database-tabellen',
       ok: false,
-      detail: `Supabase is niet bereikbaar op deze URL (${(err as Error).message}). Controleer de Project URL.`,
+      detail: `Supabase is niet bereikbaar op deze URL (${redact((err as Error).message)}). Controleer de Project URL.`,
     });
     return results;
   }
@@ -134,7 +152,7 @@ export async function diagnose(): Promise<CheckResult[]> {
       detail:
         fnError.code === 'PGRST202' || /could not find the function/i.test(fnError.message)
           ? 'De spelfuncties ontbreken. Voer het hele SQL-bestand (opnieuw) uit in de SQL Editor.'
-          : `Fout bij de spelfuncties: ${fnError.code ?? ''} ${fnError.message}`,
+          : `Fout bij de spelfuncties: ${fnError.code ?? ''} ${redact(fnError.message)}`,
     });
   }
 
@@ -160,7 +178,7 @@ export async function diagnose(): Promise<CheckResult[]> {
           },
     );
   } catch (err) {
-    results.push({ label: 'Realtime', ok: false, detail: `Niet bereikbaar: ${(err as Error).message}` });
+    results.push({ label: 'Realtime', ok: false, detail: `Niet bereikbaar: ${redact((err as Error).message)}` });
   }
 
   return results;

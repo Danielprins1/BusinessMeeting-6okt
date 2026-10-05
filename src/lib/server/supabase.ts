@@ -16,8 +16,13 @@ export function supabaseUrl(): string | undefined {
     .replace(/\/rest\/v1$/, '');
 }
 
+/** Keys bevatten nooit spaties; regeleinden/spaties door plakken worden verwijderd. */
 export function serviceKey(): string | undefined {
-  return clean(process.env.SUPABASE_SERVICE_ROLE_KEY);
+  return clean(process.env.SUPABASE_SERVICE_ROLE_KEY)?.replace(/\s+/g, '');
+}
+
+export function publicKey(): string | undefined {
+  return clean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)?.replace(/\s+/g, '');
 }
 
 /** Supabase-client met de service-role-key. Alleen op de server gebruiken! */
