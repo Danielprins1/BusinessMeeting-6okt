@@ -46,7 +46,12 @@ export default function StartPage() {
           <Link href="/meedoen" className="ui-button ui-button--secondary ui-button--block">
             Meedoen
           </Link>
-          {error && <Alert kind="error">{error}</Alert>}
+          {error && (
+            <Alert kind="error">
+              {error}{' '}
+              <Link href="/status">Controleer de instellingen</Link>
+            </Alert>
+          )}
         </Stack>
 
         {saved && (

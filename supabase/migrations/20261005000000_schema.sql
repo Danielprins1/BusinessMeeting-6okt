@@ -510,3 +510,9 @@ begin
   end loop;
 end;
 $$;
+
+-- De server (service_role) expliciet rechten geven, ook als het project nieuwe
+-- tabellen niet automatisch openzet.
+grant usage on schema public to service_role;
+grant all on public.games, public.players, public.questions, public.fake_answers,
+  public.answer_options, public.votes, public.round_scores to service_role;

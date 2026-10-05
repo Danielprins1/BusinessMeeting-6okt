@@ -1,5 +1,5 @@
 import 'server-only';
-import { supabaseUrl } from './supabase';
+import { serviceKey, supabaseUrl } from './supabase';
 
 export function roomChannel(roomCode: string): string {
   return `room:${roomCode}`;
@@ -12,7 +12,7 @@ export function roomChannel(roomCode: string): string {
  * realtime nooit een geheim (zoals het juiste antwoord) uitlekken.
  */
 export async function notifyRoom(roomCode: string): Promise<void> {
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const key = serviceKey()!;
   try {
     const res = await fetch(`${supabaseUrl()}/realtime/v1/api/broadcast`, {
       method: 'POST',
